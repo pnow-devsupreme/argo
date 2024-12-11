@@ -1,8 +1,7 @@
 # File: deployments/bootstrap/virtual-kubelet/environments/staging/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: virtual-kubelet-system
-bases:
+resources:
   - ../../base
 patches:
   - patch: |-
