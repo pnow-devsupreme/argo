@@ -16,21 +16,28 @@ spec:
     spec:
       serviceAccountName: virtual-kubelet
       containers:
-      - name: virtual-kubelet
-        image: virtual-kubelet/virtual-kubelet:latest
-        args:
-        - --provider=mock
-        - --nodename=$(NODE_NAME)
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-        volumeMounts:
-        - name: provider-config
-          mountPath: /etc/virtual-kubelet
-          readOnly: true
+        - name: virtual-kubelet
+          image: ghcr.io/virtual-kubelet/virtual-kubelet:1.8.0
+          args:
+            - --provider=mock
+            - --nodename=$(NODE_NAME)
+            - --provider-config=/etc/virtual-kubelet/provider.conf
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBELET_PORT
+              value: "10250"
+            - name: VKUBELET_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          volumeMounts:
+            - name: provider-config
+              mountPath: /etc/virtual-kubelet
+              readOnly: true
       volumes:
-      - name: provider-config
-        configMap:
-          name: virtual-kubelet-config
+        - name: provider-config
+          configMap:
+            name: virtual-kubelet-config
