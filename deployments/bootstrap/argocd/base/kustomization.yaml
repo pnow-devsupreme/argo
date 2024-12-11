@@ -8,7 +8,7 @@ resources:
   - manifests/rbac.yaml
   - manifests/projects.yaml
   - manifests/config.yaml
-  - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - manifests/install.yaml
 patches:
   - target:
       kind: Service
