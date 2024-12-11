@@ -3,5 +3,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace-generator.yaml
-  - namespace-templates.yaml
+  - namespace-template.yaml
   - rbac-hierarchy.yaml
