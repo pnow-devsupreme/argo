@@ -6,11 +6,28 @@ resources:
   - manifests/namespace.yaml
   - manifests/projects.yaml
 patches:
-  - path: manifests/rbac.yaml
-    target:
-      kind: ClusterRole
-      name: argocd-application-controller
-  - path: manifests/config.yaml
+  # Patch for ConfigMap
+  - patch: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: argocd-cm
+        namespace: argocd
+      data:
+        application.resourceTrackingMethod: annotation+label
     target:
       kind: ConfigMap
       name: argocd-cm
+  # Patch for RBAC rules
+  - patch: |
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: argocd-application-controller
+      rules:
+      - apiGroups: ["*"]
+        resources: ["*"]
+        verbs: ["*"]
+    target:
+      kind: ClusterRole
+      name: argocd-application-controller
