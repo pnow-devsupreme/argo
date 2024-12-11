@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nvidia-gpu-operator
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nvidia-gpu-operator
+    app.kubernetes.io/part-of: gpu-infrastructure
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: "SkipDryRun=true,ServerSideApply=true"
+    argocd.argoproj.io/compare-options: "IgnoreExtraneous"
+    argocd.argoproj.io/tracking-method: "annotation"
+spec:
+  project: workload
+  source:
+    repoURL: https://nvidia.github.io/gpu-operator
+    targetRevision: v1.8.1
+    chart: gpu-operator
+    helm:
+      parameters:
+        - name: operator.defaultRuntime
+          value: containerd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nvidia-gpu-operator
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+      - PruneLast=true
+  ignoreDifferences:
+    - group: nvidia.com
+      kind: ClusterPolicy
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/labels
+        - /metadata/resourceVersion
+        - /metadata/generation
+        - /metadata/managedFields
+        - /metadata/creationTimestamp
+        - /metadata/uid
+        - /spec/dcgmExporter/serviceMonitor
+        - /spec/operator/runtimeClass
+        - /status
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
