@@ -1,0 +1,8 @@
+# File: deployments/bootstrap/argocd/base/manifests/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  application.resourceTrackingMethod: annotation+label
