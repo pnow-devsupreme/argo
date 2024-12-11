@@ -1,4 +1,70 @@
+# File: deployments/bootstrap/platform-apps/environments/staging/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../base
+  - ../../base/domains
+patches:
+  - patch: |
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "-1"
+    target:
+      kind: Application
+      name: environment-config
+  - patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: applications-staging
+      - op: replace
+        path: /spec/destination/namespace
+        value: applications-staging
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "0"
+    target:
+      kind: Application
+      name: root-applications
+  - patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: infrastructure-staging
+      - op: replace
+        path: /spec/destination/namespace
+        value: infrastructure-staging
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "0"
+    target:
+      kind: Application
+      name: root-infrastructure
+  - patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: workloads-staging
+      - op: replace
+        path: /spec/destination/namespace
+        value: workloads-staging
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "0"
+    target:
+      kind: Application
+      name: root-workloads
+  - patch: |
+      - op: replace
+        path: /metadata/namespace
+        value: platform-staging
+      - op: replace
+        path: /spec/destination/namespace
+        value: platform-staging
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "0"
+    target:
+      kind: Application
+      name: root-platform-apps

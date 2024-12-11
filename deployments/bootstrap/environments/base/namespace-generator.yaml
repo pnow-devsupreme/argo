@@ -1,0 +1,58 @@
+# File: deployments/bootstrap/environments/base/namespace-generator.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domain-config
+  namespace: argocd
+data:
+  domains: |
+    - name: platform
+      level: 0  # Highest access level
+      description: "Platform level components"
+    - name: infrastructure
+      level: 1  # Second highest access
+      description: "Infrastructure components"
+    - name: workloads
+      level: 2  # Application level access
+      description: "Workload components"
+    - name: applications
+      level: 2  # Application level access
+      description: "Business applications"
+---
+# A script that will generate namespaces based on the domain config
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: namespace-generator
+  namespace: argocd
+spec:
+  template:
+    spec:
+      containers:
+        - name: kubectl
+          image: bitnami/kubectl
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Read domains from configmap and create namespaces
+              for domain in $(yq e '.domains[].name' /config/domains); do
+                for env in staging production; do
+                  kubectl create namespace ${domain}-${env} \
+                    --dry-run=client -o yaml | \
+                    kubectl apply -f -
+                  # Add labels for access control
+                  kubectl label namespace ${domain}-${env} \
+                    domain=${domain} \
+                    environment=${env} \
+                    access-level=$(yq e ".domains[] | select(.name == \"${domain}\") | .level" /config/domains)
+                done
+              done
+          volumeMounts:
+            - name: domain-config
+              mountPath: /config
+      volumes:
+        - name: domain-config
+          configMap:
+            name: domain-config
+      serviceAccount: namespace-creator

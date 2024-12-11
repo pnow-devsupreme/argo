@@ -1,0 +1,55 @@
+# File: deployments/bootstrap/environments/base/rbac-hierarchy.yaml
+# This creates role bindings that implement our hierarchical access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: domain-access-manager
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+    # The verbs could be restricted based on requirements
+---
+# Platform level access - can access everything
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: platform-full-access
+subjects:
+  - kind: Group
+    name: system:serviceaccounts:platform-staging
+    apiGroup: rbac.authorization.k8s.io
+  - kind: Group
+    name: system:serviceaccounts:platform-production
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: domain-access-manager
+  apiGroup: rbac.authorization.k8s.io
+---
+# Infrastructure level access - can access workloads and applications
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: infrastructure-access
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+    # This could be restricted based on specific needs
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: infrastructure-access-binding
+subjects:
+  - kind: Group
+    name: system:serviceaccounts:infrastructure-staging
+    apiGroup: rbac.authorization.k8s.io
+  - kind: Group
+    name: system:serviceaccounts:infrastructure-production
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: infrastructure-access
+  apiGroup: rbac.authorization.k8s.io
