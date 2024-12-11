@@ -5,6 +5,12 @@ resources:
   - manifests/install.yaml
   - manifests/namespace.yaml
   - manifests/projects.yaml
-  - manifests/config.yaml
-patchesStrategicMerge: # This is the key change
-  - manifests/rbac.yaml
+patches:
+  - path: manifests/rbac.yaml
+    target:
+      kind: ClusterRole
+      name: argocd-application-controller
+  - path: manifests/config.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-cm
