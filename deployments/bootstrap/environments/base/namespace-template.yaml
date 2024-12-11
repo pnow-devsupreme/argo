@@ -1,0 +1,91 @@
+# File: deployments/bootstrap/environments/base/namespaces.yaml
+# This file now becomes our namespace template that will be used by our generator
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: namespace-templates
+  namespace: argocd
+data:
+  # Network Policy template
+  network-policy: |
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: ${domain}-${env}-isolation
+      namespace: ${domain}-${env}
+    spec:
+      podSelector: {}
+      policyTypes:
+      - Ingress
+      - Egress
+      ingress:
+      - from:
+        # Allow same domain, different environment
+        - namespaceSelector:
+            matchLabels:
+              domain: ${domain}
+        # Allow higher access level domains (lower numbers)
+        - namespaceSelector:
+            matchExpressions:
+              - key: access-level
+                operator: Lt
+                values: [${level}]
+      egress:
+      - to:
+        - namespaceSelector:
+            matchLabels:
+              domain: ${domain}
+        # Allow access to lower privilege domains (higher numbers)
+        - namespaceSelector:
+            matchExpressions:
+              - key: access-level
+                operator: Gt
+                values: [${level}]
+  # Resource Quota template
+  resource-quota: |
+    apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: ${domain}-${env}-quota
+      namespace: ${domain}-${env}
+    spec:
+      hard:
+        # Using level directly instead of Go templates
+        requests.cpu: "$( [ ${level} -eq 0 ] && echo "8" || ( [ ${level} -eq 1 ] && echo "4" || echo "2" ))"
+        requests.memory: "$( [ ${level} -eq 0 ] && echo "16Gi" || ( [ ${level} -eq 1 ] && echo "8Gi" || echo "4Gi" ))"
+  # LimitRange template
+  limit-range: |
+    apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: ${domain}-${env}-limits
+      namespace: ${domain}-${env}
+    spec:
+      limits:
+      - default:
+          # Platform gets higher limits
+          {{if eq .Domain "platform"}}
+          cpu: "2"
+          memory: 4Gi
+          {{else if eq .Domain "infrastructure"}}
+          cpu: "1"
+          memory: 2Gi
+          {{else}}
+          cpu: "500m"
+          memory: 1Gi
+          {{end}}
+        defaultRequest:
+          cpu: "100m"
+          memory: "256Mi"
+        type: Container
+  # ServiceAccount template
+  service-account: |-
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: ${domain}-${env}-sa
+      namespace: ${domain}-${env}
+      labels:
+        domain: ${domain}
+        environment: ${env}
+        access-level: ${access_level}

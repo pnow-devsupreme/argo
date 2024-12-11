@@ -1,58 +1,86 @@
 # File: deployments/bootstrap/environments/base/namespace-generator.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: domain-config
-  namespace: argocd
-data:
-  domains: |
-    - name: platform
-      level: 0  # Highest access level
-      description: "Platform level components"
-    - name: infrastructure
-      level: 1  # Second highest access
-      description: "Infrastructure components"
-    - name: workloads
-      level: 2  # Application level access
-      description: "Workload components"
-    - name: applications
-      level: 2  # Application level access
-      description: "Business applications"
----
-# A script that will generate namespaces based on the domain config
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: namespace-generator
+  name: namespace-manager
   namespace: argocd
 spec:
   template:
     spec:
       containers:
         - name: kubectl
-          image: bitnami/kubectl
+          image: bitnami/kubectl:latest
           command:
             - /bin/sh
             - -c
             - |
-              # Read domains from configmap and create namespaces
-              for domain in $(yq e '.domains[].name' /config/domains); do
+              # First, create our domain configuration
+              cat > /tmp/domain-config.yaml << 'EOL'
+              domains:
+                platform:
+                  level: 0
+                  description: "Platform level components"
+                infrastructure:
+                  level: 1
+                  description: "Infrastructure components"
+                workloads:
+                  level: 2
+                  description: "Workload components"
+                applications:
+                  level: 2
+                  description: "Business applications"
+              EOL
+              # Function to process individual templates from ConfigMap
+              process_template() {
+                local domain=$1
+                local env=$2
+                local level=$3
+                local template_type=$4
+                echo "Processing ${template_type} for ${domain}-${env} with access level ${level}"
+                # Read template from ConfigMap
+                local template=$(kubectl get configmap namespace-templates -n argocd -o jsonpath="{.data.${template_type}}")
+                # Replace variables and apply
+                echo "$template" | sed \
+                    -e "s/\${domain}/$domain/g" \
+                    -e "s/\${env}/$env/g" \
+                    -e "s/\${level}/$level/g" | kubectl apply -f -
+              }
+              # Main function to create namespace and its resources
+              create_namespace() {
+                local domain=$1
+                local env=$2
+                local level=$3
+                echo "Creating namespace ${domain}-${env} with access level ${level}"
+                # Create the namespace with labels
+                cat << EOF | kubectl apply -f -
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: ${domain}-${env}
+                  labels:
+                    domain: ${domain}
+                    environment: ${env}
+                    access-level: ${level}
+                    managed-by: "argocd"
+                EOF
+                # Process each required template
+                process_template "$domain" "$env" "$level" "network-policy"
+                process_template "$domain" "$env" "$level" "resource-quota"
+                process_template "$domain" "$env" "$level" "limit-range"
+                process_template "$domain" "$env" "$level" "service-account"
+                # Verify the namespace was created with correct labels
+                echo "Verifying namespace ${domain}-${env}"
+                kubectl get namespace ${domain}-${env} --show-labels
+              }
+              # Main execution loop
+              echo "Starting namespace creation process..."
+              while read -r domain level; do
                 for env in staging production; do
-                  kubectl create namespace ${domain}-${env} \
-                    --dry-run=client -o yaml | \
-                    kubectl apply -f -
-                  # Add labels for access control
-                  kubectl label namespace ${domain}-${env} \
-                    domain=${domain} \
-                    environment=${env} \
-                    access-level=$(yq e ".domains[] | select(.name == \"${domain}\") | .level" /config/domains)
+                  create_namespace "$domain" "$env" $level
                 done
-              done
+              done < <(yq eval '.domains | to_entries | .[] | .key + " " + .value.level' /tmp/domain-config.yaml)
           volumeMounts:
-            - name: domain-config
-              mountPath: /config
-      volumes:
-        - name: domain-config
-          configMap:
-            name: domain-config
-      serviceAccount: namespace-creator
+            - name: templates
+              mountPath: /templates
+              # We don't need the domain-config volume anymore as we create it inline
+      serviceAccountName: namespace-creator

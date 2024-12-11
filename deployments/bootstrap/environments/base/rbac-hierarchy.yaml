@@ -1,20 +1,19 @@
 # File: deployments/bootstrap/environments/base/rbac-hierarchy.yaml
-# This creates role bindings that implement our hierarchical access
+# Platform level - Full access to everything
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: domain-access-manager
+  name: platform-admin
 rules:
   - apiGroups: ["*"]
     resources: ["*"]
     verbs: ["*"]
-    # The verbs could be restricted based on requirements
 ---
-# Platform level access - can access everything
+# Bind platform service accounts to platform-admin role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: platform-full-access
+  name: platform-admin-binding
 subjects:
   - kind: Group
     name: system:serviceaccounts:platform-staging
@@ -24,24 +23,33 @@ subjects:
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
-  name: domain-access-manager
+  name: platform-admin
   apiGroup: rbac.authorization.k8s.io
 ---
-# Infrastructure level access - can access workloads and applications
+# Infrastructure level - Access to create and manage workload resources
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: infrastructure-access
+  name: infra-admin
 rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
+  # Workload management permissions
+  - apiGroups: ["apps", "extensions"]
+    resources: ["deployments", "daemonsets", "statefulsets"]
     verbs: ["*"]
-    # This could be restricted based on specific needs
+  # Service and networking permissions
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["*"]
+  # Configuration permissions
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["*"]
 ---
+# Bind infrastructure service accounts to infra-admin role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: infrastructure-access-binding
+  name: infra-admin-binding
 subjects:
   - kind: Group
     name: system:serviceaccounts:infrastructure-staging
@@ -51,5 +59,33 @@ subjects:
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
-  name: infrastructure-access
+  name: infra-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+# Application/Workload level - Limited access within their namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-access
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+# This role binding will be created for each app/workload namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-access-binding
+  namespace: ${domain}-${env} # This gets replaced by our namespace generator
+subjects:
+  - kind: ServiceAccount
+    name: ${domain}-${env}-sa
+    namespace: ${domain}-${env}
+roleRef:
+  kind: ClusterRole
+  name: app-access
   apiGroup: rbac.authorization.k8s.io
