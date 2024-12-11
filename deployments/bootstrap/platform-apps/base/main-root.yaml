@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: root-platform-apps
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
   # Adding a finalizer to prevent accidental deletion
   finalizers:
     - resources-finalizer.argocd.argoproj.io
