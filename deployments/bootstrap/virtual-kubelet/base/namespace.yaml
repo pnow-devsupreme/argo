@@ -1,0 +1,7 @@
+# File: deployments/bootstrap/virtual-kubelet/base/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: virtual-kubelet-system
+  labels:
+    control-plane: virtual-kubelet-controller
