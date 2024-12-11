@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
     targetRevision: HEAD
-    path: deployments/domains/applications/apps
+    path: deployments/domains/applications/platform/environments/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
