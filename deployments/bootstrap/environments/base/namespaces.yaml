@@ -1,0 +1,19 @@
+# File: deployments/bootstrap/environments/base/namespaces.yaml
+# Define our environment namespaces with metadata that helps identify and manage them
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    environment: staging
+    security-level: moderate
+    monitoring: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    environment: production
+    security-level: strict
+    monitoring: enabled

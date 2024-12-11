@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - workloads/application.yaml
   - infrastructure/application.yaml
-  - infrastructure/virtual-kubelet.yaml
   - applications/application.yaml
+  - environments/application.yaml
+  - ../../../argocd/base
