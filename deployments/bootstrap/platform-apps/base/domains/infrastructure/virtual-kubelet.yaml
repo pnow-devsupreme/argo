@@ -1,0 +1,19 @@
+# File: deployments/bootstrap/platform-apps/base/domains/infrastructure/virtual-kubelet.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: virtual-kubelet
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/pnow-devsupreme/argo.git
+    targetRevision: HEAD
+    path: deployments/bootstrap/virtual-kubelet/environments/staging # or production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: virtual-kubelet-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

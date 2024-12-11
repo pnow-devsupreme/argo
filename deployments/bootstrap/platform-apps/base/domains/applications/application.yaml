@@ -1,0 +1,25 @@
+# File: deployments/bootstrap/platform-apps/base/applications-root-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-applications
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: applications
+  source:
+    repoURL: https://github.com/pnow-devsupreme/argo.git
+    targetRevision: HEAD
+    path: deployments/domains/applications/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
