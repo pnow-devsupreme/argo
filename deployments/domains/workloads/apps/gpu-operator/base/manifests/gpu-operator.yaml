@@ -12,7 +12,7 @@ metadata:
     argocd.argoproj.io/compare-options: "IgnoreExtraneous"
     argocd.argoproj.io/tracking-method: "annotation"
 spec:
-  project: workload
+  project: workloads
   source:
     repoURL: https://nvidia.github.io/gpu-operator
     targetRevision: v1.8.1
