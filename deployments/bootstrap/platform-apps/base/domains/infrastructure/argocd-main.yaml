@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argo
+  name: argocd-configuration
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
     targetRevision: HEAD
-    path: deployments/bootstrap/argocd/environments/staging
+    path: deployments/domains/infrastructure/apps/argocd-config/environments/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

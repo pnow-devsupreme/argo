@@ -1,4 +1,4 @@
-# File: deployments/bootstrap/platform-apps/base/applications-root-app.yaml
+# File: deployments/bootstrap/platform-apps/base/domains/applications/application.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
