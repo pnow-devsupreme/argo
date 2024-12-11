@@ -12,6 +12,17 @@ patches:
     target:
       kind: Application
       name: environment-config
+      # Then use a PreSync hook to wait for namespaces
+  - patch: |
+      - op: add
+        path: /metadata/annotations
+        value:
+          argocd.argoproj.io/sync-wave: "0"
+          argocd.argoproj.io/hook: PreSync
+          argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    target:
+      kind: Job
+      name: namespace-manager
   - patch: |
       - op: replace
         path: /metadata/namespace
@@ -22,7 +33,7 @@ patches:
       - op: add
         path: /metadata/annotations
         value:
-          argocd.argoproj.io/sync-wave: "0"
+          argocd.argoproj.io/sync-wave: "1"
     target:
       kind: Application
       name: root-applications
@@ -36,7 +47,7 @@ patches:
       - op: add
         path: /metadata/annotations
         value:
-          argocd.argoproj.io/sync-wave: "0"
+          argocd.argoproj.io/sync-wave: "1"
     target:
       kind: Application
       name: root-infrastructure
@@ -50,7 +61,7 @@ patches:
       - op: add
         path: /metadata/annotations
         value:
-          argocd.argoproj.io/sync-wave: "0"
+          argocd.argoproj.io/sync-wave: "1"
     target:
       kind: Application
       name: root-workloads
@@ -64,7 +75,7 @@ patches:
       - op: add
         path: /metadata/annotations
         value:
-          argocd.argoproj.io/sync-wave: "0"
+          argocd.argoproj.io/sync-wave: "1"
     target:
       kind: Application
       name: root-platform-apps

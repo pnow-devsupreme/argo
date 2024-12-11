@@ -30,6 +30,28 @@ spec:
                   level: 2
                   description: "Business applications"
               EOL
+              # Function to validate namespace configuration
+              validate_namespace() {
+                local domain=$1
+                local env=$2
+                echo "Validating namespace ${domain}-${env}..."
+                # Check if all required resources exist
+                local resources=("networkpolicy" "resourcequota" "limitrange" "serviceaccount")
+                for resource in "${resources[@]}"; do
+                  if ! kubectl get ${resource} -n ${domain}-${env} &>/dev/null; then
+                    echo "Error: ${resource} not found in namespace ${domain}-${env}"
+                    return 1
+                  fi
+                done
+                # Verify labels are correct
+                local namespace_labels=$(kubectl get namespace ${domain}-${env} -o jsonpath='{.metadata.labels}')
+                if ! echo "$namespace_labels" | grep -q "access-level"; then
+                  echo "Error: access-level label missing in namespace ${domain}-${env}"
+                  return 1
+                fi
+                echo "✓ Namespace ${domain}-${env} validation successful"
+                return 0
+              }
               # Function to process individual templates from ConfigMap
               process_template() {
                 local domain=$1
@@ -79,6 +101,33 @@ spec:
                   create_namespace "$domain" "$env" $level
                 done
               done < <(yq eval '.domains | to_entries | .[] | .key + " " + .value.level' /tmp/domain-config.yaml)
+              # Wait for all namespaces to be fully active
+              echo "Waiting for namespaces to be ready..."
+              for domain in platform infrastructure workloads applications; do
+                for env in staging production; do
+                  echo "Waiting for ${domain}-${env} namespace to be ready..."
+                  if ! kubectl wait --for=condition=Active namespace/${domain}-${env} --timeout=60s; then
+                    echo "Error: Timeout waiting for namespace ${domain}-${env}"
+                    exit 1
+                  fi
+                done
+              done
+              # Perform validation after all namespaces are ready
+              echo "Starting namespace validation..."
+              failed=0
+              for domain in platform infrastructure workloads applications; do
+                for env in staging production; do
+                  if ! validate_namespace "$domain" "$env"; then
+                    failed=1
+                  fi
+                done
+              done
+              # Exit with error if any validation failed
+              if [ $failed -eq 1 ]; then
+                echo "One or more namespace validations failed"
+                exit 1
+              fi
+              echo "All namespaces created and validated successfully"
           volumeMounts:
             - name: templates
               mountPath: /templates
