@@ -54,19 +54,29 @@ spec:
               }
               # Function to process individual templates from ConfigMap
               process_template() {
-                local domain=$1
-                local env=$2
-                local level=$3
-                local template_type=$4
-                echo "Processing ${template_type} for ${domain}-${env} with access level ${level}"
-                # Read template from ConfigMap
-                local template=$(kubectl get configmap namespace-templates -n argocd -o jsonpath="{.data.${template_type}}")
-                # Replace variables and apply
-                echo "$template" | sed \
-                    -e "s/\${domain}/$domain/g" \
-                    -e "s/\${env}/$env/g" \
-                    -e "s/\${level}/$level/g" | kubectl apply -f -
-              }
+                  local domain=$1
+                  local env=$2
+                  local level=$3
+                  local template_type=$4
+                  # For RoleBinding, we'll create it directly rather than using a template
+                  if [ "$template_type" = "app-access-binding" ]; then
+                      cat << EOF | kubectl apply -f -
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: RoleBinding
+              metadata:
+                name: app-access-binding
+                namespace: ${domain}-${env}
+              subjects:
+              - kind: ServiceAccount
+                name: ${domain}-${env}-sa
+                namespace: ${domain}-${env}
+              roleRef:
+                kind: ClusterRole
+                name: app-access
+                apiGroup: rbac.authorization.k8s.io
+              EOF
+                    return
+                fi
               # Main function to create namespace and its resources
               create_namespace() {
                 local domain=$1
@@ -112,6 +122,9 @@ spec:
                   fi
                 done
               done
+              if [ "$level" -gt 0 ]; then  # Only create for non-platform namespaces
+                process_template "$domain" "$env" "$level" "app-access-binding"
+              fi
               # Perform validation after all namespaces are ready
               echo "Starting namespace validation..."
               failed=0
@@ -129,7 +142,10 @@ spec:
               fi
               echo "All namespaces created and validated successfully"
           volumeMounts:
-            - name: templates
+            - name: namespace-templates
               mountPath: /templates
-              # We don't need the domain-config volume anymore as we create it inline
+      volumes:
+        - name: namespace-templates
+          configMap:
+            name: namespace-templates
       serviceAccountName: namespace-creator
