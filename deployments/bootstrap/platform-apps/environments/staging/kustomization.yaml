@@ -3,79 +3,79 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base/domains
-patches:
-  - patch: |
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "-1"
-    target:
-      kind: Application
-      name: environment-config
-      # Then use a PreSync hook to wait for namespaces
-  - patch: |
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "0"
-          argocd.argoproj.io/hook: PreSync
-          argocd.argoproj.io/hook-delete-policy: HookSucceeded
-    target:
-      kind: Job
-      name: namespace-manager
-  - patch: |
-      - op: replace
-        path: /metadata/namespace
-        value: applications-staging
-      - op: replace
-        path: /spec/destination/namespace
-        value: applications-staging
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "1"
-    target:
-      kind: Application
-      name: root-applications
-  - patch: |
-      - op: replace
-        path: /metadata/namespace
-        value: infrastructure-staging
-      - op: replace
-        path: /spec/destination/namespace
-        value: infrastructure-staging
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "1"
-    target:
-      kind: Application
-      name: root-infrastructure
-  - patch: |
-      - op: replace
-        path: /metadata/namespace
-        value: workloads-staging
-      - op: replace
-        path: /spec/destination/namespace
-        value: workloads-staging
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "1"
-    target:
-      kind: Application
-      name: root-workloads
-  - patch: |
-      - op: replace
-        path: /metadata/namespace
-        value: platform-staging
-      - op: replace
-        path: /spec/destination/namespace
-        value: platform-staging
-      - op: add
-        path: /metadata/annotations
-        value:
-          argocd.argoproj.io/sync-wave: "1"
-    target:
-      kind: Application
-      name: root-platform-apps
+# patches:
+#   - patch: |
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "-1"
+#     target:
+#       kind: Application
+#       name: environment-config
+#       # Then use a PreSync hook to wait for namespaces
+#   - patch: |
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "0"
+#           argocd.argoproj.io/hook: PreSync
+#           argocd.argoproj.io/hook-delete-policy: HookSucceeded
+#     target:
+#       kind: Job
+#       name: namespace-manager
+#   - patch: |
+#       - op: replace
+#         path: /metadata/namespace
+#         value: applications-staging
+#       - op: replace
+#         path: /spec/destination/namespace
+#         value: applications-staging
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "1"
+#     target:
+#       kind: Application
+#       name: root-applications
+#   - patch: |
+#       - op: replace
+#         path: /metadata/namespace
+#         value: infrastructure-staging
+#       - op: replace
+#         path: /spec/destination/namespace
+#         value: infrastructure-staging
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "1"
+#     target:
+#       kind: Application
+#       name: root-infrastructure
+#   - patch: |
+#       - op: replace
+#         path: /metadata/namespace
+#         value: workloads-staging
+#       - op: replace
+#         path: /spec/destination/namespace
+#         value: workloads-staging
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "1"
+#     target:
+#       kind: Application
+#       name: root-workloads
+#   - patch: |
+#       - op: replace
+#         path: /metadata/namespace
+#         value: platform-staging
+#       - op: replace
+#         path: /spec/destination/namespace
+#         value: platform-staging
+#       - op: add
+#         path: /metadata/annotations
+#         value:
+#           argocd.argoproj.io/sync-wave: "1"
+#     target:
+#       kind: Application
+#       name: root-platform-apps

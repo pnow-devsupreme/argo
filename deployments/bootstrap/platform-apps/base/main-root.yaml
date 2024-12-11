@@ -15,7 +15,7 @@ spec:
     path: deployments/bootstrap/platform-apps/base/domains
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: root-platform
   syncPolicy:
     automated:
       prune: true

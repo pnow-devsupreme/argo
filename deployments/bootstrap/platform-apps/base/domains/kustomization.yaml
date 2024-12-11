@@ -5,5 +5,5 @@ resources:
   - workloads/application.yaml
   - infrastructure/application.yaml
   - applications/application.yaml
-  - environments/application.yaml
+  # - environments/application.yaml
   - infrastructure/argocd-main.yaml

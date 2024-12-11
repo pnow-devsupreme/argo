@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: argocd-configuration
-  namespace: argocd
+  namespace: root-platform
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
