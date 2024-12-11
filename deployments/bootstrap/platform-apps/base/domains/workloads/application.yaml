@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: root-workloads
-  namespace: root-platform
+  namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -14,7 +14,7 @@ spec:
     path: deployments/domains/workloads/apps
   destination:
     server: https://kubernetes.default.svc
-    namespace: root-workloads
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
