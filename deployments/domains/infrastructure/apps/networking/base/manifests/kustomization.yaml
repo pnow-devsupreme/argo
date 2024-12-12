@@ -1,0 +1,6 @@
+# File: deployments/domains/infrastructure/apps/networking/base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ingress-nginx/application.yaml
+  - ingress-nginx/namespace.yaml

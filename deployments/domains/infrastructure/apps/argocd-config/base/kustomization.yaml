@@ -4,5 +4,6 @@ resources:
   - projects.yaml
   - serviceaccounts.yaml
   - namespace.yaml
-  # - repositories.yaml
-  # - rbac.yaml
+  - ingress.yaml
+patchesStrategicMerge:
+  - config-patch.yaml

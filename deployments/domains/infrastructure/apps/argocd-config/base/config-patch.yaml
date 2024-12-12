@@ -1,0 +1,30 @@
+# File: deployments/domains/infrastructure/apps/platform/argocd/config-patch.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
+data:
+  # Remove insecure flag if it was set before
+  server.insecure: "true"
+  # Configure base URL for redirects
+  server.rootpath: "/"
+  server.basehref: "/"
+---
+# Update the service to be ClusterIP instead of NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: https
+      port: 443
+      targetPort: 8443
+  selector:
+    app.kubernetes.io/name: argocd-server
