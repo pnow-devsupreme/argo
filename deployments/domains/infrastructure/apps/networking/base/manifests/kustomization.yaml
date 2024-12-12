@@ -5,4 +5,4 @@ metadata:
   name: ingress-kustomize
 resources:
   - ingress-nginx/application.yaml
-  - ingress-nginx/namespace.yaml
+  # - ingress-nginx/namespace.yaml
