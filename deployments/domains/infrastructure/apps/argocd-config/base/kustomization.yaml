@@ -4,6 +4,7 @@ resources:
   - projects.yaml
   - serviceaccounts.yaml
   - ingress.yaml
+  - config-patch
 patches:
   # Patch for ArgoCD command parameters
   - patch: |
