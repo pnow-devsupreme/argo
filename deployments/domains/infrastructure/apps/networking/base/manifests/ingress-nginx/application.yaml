@@ -2,8 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-nginx
-  namespace: argocd
+  name: root-infrastructure
 spec:
   project: default
   source:
