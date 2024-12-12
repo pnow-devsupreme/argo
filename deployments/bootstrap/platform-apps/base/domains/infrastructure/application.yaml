@@ -8,10 +8,13 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/pnow-devsupreme/argo.git
-    targetRevision: HEAD
-    path: deployments/domains/infrastructure/apps
+  sources:
+    - repoURL: https://github.com/pnow-devsupreme/argo.git
+      targetRevision: HEAD
+      path: deployments/domains/infrastructure/apps
+    - repoURL: https://github.com/pnow-devsupreme/argo.git
+      targetRevision: HEAD
+      path: deployments/domains/infrastructure/apps/networking/environments/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
