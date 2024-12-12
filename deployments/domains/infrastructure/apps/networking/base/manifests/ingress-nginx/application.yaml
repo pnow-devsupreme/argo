@@ -35,7 +35,7 @@ spec:
             keep-alive-requests: 100
             client-header-buffer-size: "1k"
             client-body-buffer-size: "128k"
-            large-client-header-buffers: "4 8k"
+            large-client-header-buffers: "48k"
           metrics:
             enabled: true
             service:
