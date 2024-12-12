@@ -1,5 +1,0 @@
-# File: deployments/bootstrap/argocd/base/manifests/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: root-platform
