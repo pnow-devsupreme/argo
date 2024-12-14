@@ -4,5 +4,5 @@ kind: Kustomization
 metadata:
   name: ingress-kustomize
 resources:
-  - ingress-nginx/namespace.yaml
-  - ingress-nginx/install.yaml
+  - install.yaml
+  - namespace.yaml
