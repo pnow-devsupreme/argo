@@ -2,26 +2,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
-patches:
-  - patch: |
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: argocd-server
-        namespace: argocd
-      spec:
-        type: NodePort
-        externalIPs:
-          - 172.17.0.31
-        ports:
-        - name: http
-          port: 80
-          targetPort: 8080
-          nodePort: 30007
-        - name: https
-          port: 443
-          targetPort: 8443
-          nodePort: 30008
-    target:
-      kind: Service
-      name: argocd-server
