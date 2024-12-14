@@ -1,9 +1,4 @@
-# File: deployments/domains/infrastructure/apps/networking/base/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: infra-networking-ingress
-  labels:
-    domain: infrastructure
-    component: networking
-    type: ingress-controller
+  name: ingress-nginx
