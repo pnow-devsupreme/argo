@@ -6,4 +6,3 @@ resources:
   - infrastructure/application.yaml
   - applications/application.yaml
   # - environments/application.yaml
-  - infrastructure/argocd-main.yaml
