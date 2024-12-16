@@ -4,7 +4,6 @@ namespace: argocd
 resources:
   - manifests/install.yaml
 patches:
-  # Patch for ConfigMap
   - patch: |
       apiVersion: v1
       kind: ConfigMap
@@ -16,6 +15,22 @@ patches:
     target:
       kind: ConfigMap
       name: argocd-cm
+  - patch: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: argocd-cmd-params-cm
+        namespace: argocd
+      data:
+        application.resourceTrackingMethod: annotation+label
+        server.insecure: "true"
+        server.rootpath: "/"
+        server.basehref: "/"
+        server.enable.gzip: "true"
+        server.insecure.skip.external.tls: "true"
+    target:
+      kind: ConfigMap
+      name: argocd-cmd-params-cm
   # Patch for RBAC rules
   - patch: |
       apiVersion: rbac.authorization.k8s.io/v1
