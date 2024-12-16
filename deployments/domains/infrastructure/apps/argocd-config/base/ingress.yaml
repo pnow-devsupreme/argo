@@ -1,20 +1,19 @@
-# File: deployments/domains/infrastructure/apps/platform/argocd/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: argocd-ingress
+  name: argocd-server-ingress
   namespace: argocd
   annotations:
-    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-    - host: argocd.localdev.me # We'll use this for local testing
-      http:
+    - http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
