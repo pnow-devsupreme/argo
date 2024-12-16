@@ -4,6 +4,7 @@ resources:
   - ingress.yaml
   - config-patch.yaml
   - clusterissuer.yaml
+  - argocd-server-patch.yaml
 #  currently disabling
 # - serviceaccounts.yaml
 # - projects.yaml
