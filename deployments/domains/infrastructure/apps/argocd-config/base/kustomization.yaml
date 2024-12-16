@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ingress.yaml
   - config-patch.yaml
+  - clusterissuer.yaml
 #  currently disabling
 # - serviceaccounts.yaml
 # - projects.yaml
