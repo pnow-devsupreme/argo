@@ -5,3 +5,4 @@ metadata:
   name: networking-kustomize
 resources:
   - ingress-nginx
+  - cert-manager
