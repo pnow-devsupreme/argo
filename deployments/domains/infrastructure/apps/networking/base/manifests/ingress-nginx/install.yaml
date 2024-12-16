@@ -25,6 +25,10 @@ spec:
             nodePorts:
               http: 30080
               https: 30443
+          config:
+            use-forwarded-headers: "true"
+            compute-full-forwarded-for: "true"
+            proxy-buffer-size: "16k"
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
