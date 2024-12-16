@@ -1,16 +1,16 @@
 # File: deployments/domains/infrastructure/apps/platform/argocd/config-patch.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: argocd-cmd-params-cm
-  namespace: argocd
-data:
-  # Remove insecure flag if it was set before
-  server.insecure: "true"
-  # Configure base URL for redirects
-  server.rootpath: "/"
-  server.basehref: "/"
----
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: argocd-cmd-params-cm
+#   namespace: argocd
+# data:
+#   # Remove insecure flag if it was set before
+#   server.insecure: "true"
+#   # Configure base URL for redirects
+#   server.rootpath: "/"
+#   server.basehref: "/"
+# ---
 # Update the service to be ClusterIP instead of NodePort
 apiVersion: v1
 kind: Service
