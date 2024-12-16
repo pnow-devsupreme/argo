@@ -11,8 +11,6 @@ patches:
         namespace: argocd
       spec:
         type: ClusterIP
-        externalIPs:
-          - 172.17.0.31
         ports:
         - name: http
           port: 80
