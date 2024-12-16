@@ -22,7 +22,6 @@ patches:
         name: argocd-cmd-params-cm
         namespace: argocd
       data:
-        application.resourceTrackingMethod: annotation+label
         server.insecure: "true"
         server.rootpath: "/"
         server.basehref: "/"
