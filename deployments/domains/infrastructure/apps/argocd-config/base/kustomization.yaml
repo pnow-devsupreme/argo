@@ -1,43 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources: []
+resources:
+  - ingress.yaml
+  - config-patch
 #  currently disabling
 # - serviceaccounts.yaml
 # - projects.yaml
-# - ingress.yaml
-# - config-patch
-# patches:
-
-# Patch for ArgoCD command parameters
-# - patch: |
-#     apiVersion: v1
-#     kind: ConfigMap
-#     metadata:
-#       name: argocd-cmd-params-cm
-#       namespace: argocd
-#     data:
-#       server.insecure: "true"
-#       server.rootpath: "/"
-#       server.basehref: "/"
-#   target:
-#     kind: ConfigMap
-#     name: argocd-cmd-params-cm
-# # Patch for ArgoCD server service
-# - patch: |
-#     apiVersion: v1
-#     kind: Service
-#     metadata:
-#       name: argocd-server
-#       namespace: argocd
-#     spec:
-#       type: ClusterIP
-#       ports:
-#         - name: http
-#           port: 80
-#           targetPort: 8080
-#         - name: https
-#           port: 443
-#           targetPort: 8443
-#   target:
-#     kind: Service
-#     name: argocd-server
