@@ -11,7 +11,8 @@ spec:
   rules:
     http:
       paths:
-        - path: /
+        - host: argocd.proficientnowtech.com
+          path: /
           pathType: Prefix
           backend:
             service:
