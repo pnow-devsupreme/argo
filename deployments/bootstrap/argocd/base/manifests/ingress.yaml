@@ -6,11 +6,12 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-    - host: argocd.localdev.me # We'll use this temporarily for testing
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

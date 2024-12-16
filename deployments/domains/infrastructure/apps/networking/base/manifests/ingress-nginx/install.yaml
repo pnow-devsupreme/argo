@@ -11,50 +11,20 @@ spec:
     targetRevision: 4.10.0
     chart: ingress-nginx
     helm:
-      values: |-
+      values: |
         controller:
           name: nginx-ingress
           namespace: ingress-nginx
           service:
-            # Since we're in a bare metal setup, we use NodePort
             type: NodePort
-            # Explicitly assign our external IP
             externalIPs:
               - 172.17.0.31
-            # Define consistent ports for our ingress
+            ports:
+              http: 80
+              https: 443
             nodePorts:
               http: 30080
               https: 30443
-          # Basic ingress controller configuration
-          config:
-            # These settings help with larger requests and timeouts
-            proxy-body-size: "0"
-            proxy-buffer-size: "128k"
-            proxy-connect-timeout: "300"
-            proxy-read-timeout: "300"
-            proxy-send-timeout: "300"
-          # Resource limits to prevent overload
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 200m
-              memory: 256Mi
-        # We still need admission webhooks for validation
-        admissionWebhooks:
-          enabled: true
-          patch:
-            enabled: true
-        # A basic backend for 404 handling
-        defaultBackend:
-          enabled: true
-          service:
-            # Default backend should be ClusterIP since it's internal
-            type: ClusterIP
-          requests:
-              cpu: 10m
-              memory: 20Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
