@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: argocd
 resources:
   - manifests/install.yaml
+  - manifests/namespace.yaml
 patches:
   - patch: |
       apiVersion: v1
