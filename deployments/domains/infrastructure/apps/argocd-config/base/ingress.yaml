@@ -6,7 +6,6 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    # Add this to handle redirects properly
     nginx.ingress.kubernetes.io/proxy-redirect-from: "http://$host"
     nginx.ingress.kubernetes.io/proxy-redirect-to: "http://$host:$server_port"
 spec:
