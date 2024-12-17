@@ -1,0 +1,89 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.goauthentik.io
+    targetRevision: 2023.10.5
+    chart: authentik
+    helm:
+      values: |-
+        # Core Authentik configuration
+        authentik:
+          error_reporting:
+            enabled: false
+          # Reference our sealed secret for the secret key
+          secret_key:
+            existingSecret: authentik-secrets
+            existingSecretKey: AUTHENTIK_SECRET_KEY
+        # PostgreSQL configuration
+        postgresql:
+          enabled: true
+          auth:
+            database: authentik
+            username: authentik
+            existingSecret: authentik-secrets
+            secretKeys:
+              adminPasswordKey: AUTHENTIK_POSTGRESQL_PASSWORD
+              userPasswordKey: AUTHENTIK_POSTGRESQL_PASSWORD
+        # Redis configuration
+        redis:
+          enabled: true
+          architecture: standalone
+          auth:
+            enabled: true
+            existingSecret: authentik-secrets
+            existingSecretKey: AUTHENTIK_REDIS_PASSWORD
+        # Ingress configuration
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+            nginx.ingress.kubernetes.io/proxy-body-size: "0"
+          hosts:
+            - host: auth.proficientnowtech.com
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: authentik-tls-cert
+              hosts:
+                - auth.proficientnowtech.com
+        # Resource management
+        resources:
+          server:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          worker:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        # Security settings
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

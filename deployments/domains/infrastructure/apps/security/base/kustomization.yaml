@@ -4,3 +4,4 @@ metadata:
   name: security-kustomize
 resources:
   - manifests/bitnami-sealed-secrets
+  - manifests/identity
