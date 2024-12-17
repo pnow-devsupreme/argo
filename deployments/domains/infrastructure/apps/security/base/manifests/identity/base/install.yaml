@@ -33,10 +33,6 @@ spec:
         redis:
           enabled: true
           architecture: standalone
-          auth:
-            enabled: true
-            existingSecret: authentik-secrets
-            existingSecretKey: AUTHENTIK_REDIS_PASSWORD
         # Ingress configuration
         ingress:
           enabled: true
