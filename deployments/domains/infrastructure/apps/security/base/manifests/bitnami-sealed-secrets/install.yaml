@@ -22,19 +22,6 @@ spec:
         rbac:
           create: true
           pspEnabled: false  # PSPs are deprecated in newer K8s versions
-        # Securing the controller
-        # securityContext:
-        #   enabled: true
-        #   runAsUser: 1001
-        #   fsGroup: 1001
-        # Setting resource limits to prevent resource exhaustion
-        resources:
-          limits:
-            cpu: 200m
-            memory: 256Mi
-          requests:
-            cpu: 50m
-            memory: 64Mi
         # Configuring pod security
         podSecurityContext:
           enabled: true
