@@ -1,0 +1,77 @@
+# File: deployments/domains/infrastructure/apps/security/base/sealed-secrets/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sealed-secrets
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://bitnami-labs.github.io/sealed-secrets
+    targetRevision: 2.17.0
+    chart: sealed-secrets
+    helm:
+      values: |
+        # Using a dedicated namespace for better isolation
+        fullnameOverride: sealed-secrets-controller
+        # Configuring RBAC with least privilege principle
+        rbac:
+          create: true
+          pspEnabled: false  # PSPs are deprecated in newer K8s versions
+        # Securing the controller
+        # securityContext:
+        #   enabled: true
+        #   runAsUser: 1001
+        #   fsGroup: 1001
+        # Setting resource limits to prevent resource exhaustion
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        # Configuring pod security
+        podSecurityContext:
+          enabled: true
+          fsGroup: 65534
+        # Container security settings
+        containerSecurityContext:
+          enabled: true
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
+        # Service configuration
+        service:
+          type: ClusterIP  # Using ClusterIP as we don't need external access
+          port: 8080
+        # Configuring metrics for monitoring
+        metrics:
+          serviceMonitor:
+            enabled: false  # Enable this when you set up Prometheus
+        # Setting up proper secret key rotation
+        secretName: "sealed-secrets-key"
+        keyRenewPeriod: "30d"  # Rotate keys every 30 days
+        # Adding network policy for additional security
+        networkPolicy:
+          enabled: true
+        updateStatus: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
