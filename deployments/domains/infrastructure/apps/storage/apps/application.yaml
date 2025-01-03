@@ -105,7 +105,7 @@ spec:
         # Configure health checks
         healthCheck:
           timeout: 30
-    destination:
+  destination:
     server: https://kubernetes.default.svc
     namespace: rook-ceph-system
   syncPolicy:
