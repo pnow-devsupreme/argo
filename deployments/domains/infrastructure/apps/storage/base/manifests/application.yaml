@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
-    path: deployments/rook-ceph/cluster
+    path: deployments/domains/infrastructure/apps/storage/base/manifests/cluster.yaml
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc

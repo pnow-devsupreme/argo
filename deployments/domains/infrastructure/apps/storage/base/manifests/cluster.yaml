@@ -1,0 +1,56 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    # Using the latest stable Ceph image that's compatible with Rook v1.12.3
+    image: quay.io/ceph/ceph:v17.2.6
+    allowUnsupported: false
+  # This directory stores Ceph's configuration and monitor data
+  dataDirHostPath: /var/lib/rook
+  # Monitor configuration - Monitors are critical for cluster health
+  mon:
+    count: 3
+    allowMultiplePerNode: true # Since we're working on a single node setup
+  # Manager configuration - Handles the dashboard and monitoring
+  mgr:
+    count: 1 # Single manager is sufficient for our setup
+    modules:
+      - name: pg_autoscaler
+        enabled: true # Helps with automatic placement group scaling
+  # Dashboard provides a web UI for monitoring the cluster
+  dashboard:
+    enabled: true
+    ssl: false # Disabled for easier initial access
+  # Storage configuration using your LVM devices
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    config:
+      osdsPerDevice: "1" # Each LV will host one OSD
+      storeType: bluestore # Modern, efficient storage backend
+    nodes:
+      - name: "k8s-master" # Your node name as shown in the command output
+        devices:
+          # sdb1 logical volumes
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb1-osd_volume_sdb1_1" # Maps to dm-1
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb1-osd_volume_sdb1_2" # Maps to dm-3
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb1-osd_volume_sdb1_3" # Maps to dm-6
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb1-osd_volume_sdb1_4" # Maps to dm-8
+          # sdb2 logical volumes
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb2-osd_volume_sdb2_1" # Maps to dm-28
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb2-osd_volume_sdb2_2" # Maps to dm-29
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb2-osd_volume_sdb2_3" # Maps to dm-30
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb2-osd_volume_sdb2_4" # Maps to dm-31
+          # sdb3 logical volumes
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb3-osd_volume_sdb3_1" # Maps to dm-17
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb3-osd_volume_sdb3_2" # Maps to dm-19
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb3-osd_volume_sdb3_3" # Maps to dm-22
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb3-osd_volume_sdb3_4" # Maps to dm-26
+          # sdb4 logical volumes
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb4-osd_volume_sdb4_1" # Maps to dm-16
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb4-osd_volume_sdb4_2" # Maps to dm-18
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb4-osd_volume_sdb4_3" # Maps to dm-21
+          - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb4-osd_volume_sdb4_4" # Maps to dm-23
