@@ -107,7 +107,7 @@ spec:
           timeout: 30
   destination:
     server: https://kubernetes.default.svc
-    namespace: rook-ceph-system
+    namespace: rook-ceph
   syncPolicy:
     automated:
       prune: true
