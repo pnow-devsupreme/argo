@@ -29,9 +29,23 @@ spec:
             secretKeys:
               adminPasswordKey: AUTHENTIK_POSTGRESQL_PASSWORD
               userPasswordKey: AUTHENTIK_POSTGRESQL_PASSWORD
+          # Adding persistence configuration for PostgreSQL
+          primary:
+            persistence:
+              enabled: true
+              storageClass: "ceph-block-system"
+              size: 10Gi  # Allocating 10GB for the database
+              # Using WaitForFirstConsumer binding mode through our new storage class
         # Redis configuration
         redis:
           enabled: true
+          # Adding persistence configuration for Redis
+          master:
+            persistence:
+              enabled: true
+              storageClass: "ceph-block-wait"
+              size: 5Gi  # Allocating 5GB for Redis data
+              # Using WaitForFirstConsumer binding mode through our new storage class
         # Ingress configuration
         ingress:
           enabled: true
