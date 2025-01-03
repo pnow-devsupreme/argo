@@ -31,52 +31,52 @@ spec:
               userPasswordKey: AUTHENTIK_POSTGRESQL_PASSWORD
           # Adding persistence configuration for PostgreSQL
           primary:
-              persistence:
-                enabled: true
-                storageClass: "ceph-block-wait"
-                size: 10Gi
-              topologySpreadConstraints:
-                - maxSkew: 1
-                  topologyKey: kubernetes.io/hostname
-                  whenUnsatisfiable: DoNotSchedule
-                  nodeAffinityPolicy: Honor
-                  nodeTaintsPolicy: Honor
-                  labelSelector:
-                    matchLabels:
-                      app.kubernetes.io/name: postgresql
-              affinity:
-                nodeAffinity:
-                  requiredDuringSchedulingIgnoredDuringExecution:
-                    nodeSelectorTerms:
-                      - matchExpressions:
-                          - key: kubernetes.io/hostname
-                            operator: In
-                            values:
-                              - k8s-master.pnhyd.local
-          redis:
-            master:
-              persistence:
-                enabled: true
-                storageClass: "ceph-block-wait"
-                size: 5Gi
-              topologySpreadConstraints:
-                - maxSkew: 1
-                  topologyKey: kubernetes.io/hostname
-                  whenUnsatisfiable: DoNotSchedule
-                  nodeAffinityPolicy: Honor
-                  nodeTaintsPolicy: Honor
-                  labelSelector:
-                    matchLabels:
-                      app.kubernetes.io/name: redis
-              affinity:
-                nodeAffinity:
-                  requiredDuringSchedulingIgnoredDuringExecution:
-                    nodeSelectorTerms:
-                      - matchExpressions:
-                          - key: kubernetes.io/hostname
-                            operator: In
-                            values:
-                              - k8s-master.pnhyd.local
+            persistence:
+              enabled: true
+              storageClass: "ceph-block-wait"
+              size: 10Gi
+            topologySpreadConstraints:
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: DoNotSchedule
+                nodeAffinityPolicy: Honor
+                nodeTaintsPolicy: Honor
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: postgresql
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values:
+                            - k8s-master.pnhyd.local
+        redis:
+          master:
+            persistence:
+              enabled: true
+              storageClass: "ceph-block-wait"
+              size: 5Gi
+            topologySpreadConstraints:
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: DoNotSchedule
+                nodeAffinityPolicy: Honor
+                nodeTaintsPolicy: Honor
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: redis
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values:
+                            - k8s-master.pnhyd.local
         # Ingress configuration
         ingress:
           enabled: true
