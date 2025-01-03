@@ -33,19 +33,34 @@ spec:
           primary:
             persistence:
               enabled: true
-              storageClass: "ceph-block-system"
-              size: 10Gi  # Allocating 10GB for the database
-              # Using WaitForFirstConsumer binding mode through our new storage class
-        # Redis configuration
+              storageClass: "ceph-block-wait"
+              size: 10Gi
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values:
+                            - k8s-master.pnhyd.local
+        # Redis configuration with node affinity
         redis:
           enabled: true
-          # Adding persistence configuration for Redis
           master:
             persistence:
               enabled: true
               storageClass: "ceph-block-wait"
-              size: 5Gi  # Allocating 5GB for Redis data
-              # Using WaitForFirstConsumer binding mode through our new storage class
+              size: 5Gi
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values:
+                            - k8s-master.pnhyd.local
         # Ingress configuration
         ingress:
           enabled: true
