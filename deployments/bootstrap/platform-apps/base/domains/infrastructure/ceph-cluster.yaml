@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: rook-ceph-cluster
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "1" # This ensures it runs after the operator
 spec:
   project: default
   source:
