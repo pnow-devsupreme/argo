@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
-    path: deployments/domains/infrastructure/apps/storage/base/
+    path: deployments/domains/infrastructure/apps/storage/base
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
