@@ -32,7 +32,6 @@ spec:
         # Redis configuration
         redis:
           enabled: true
-          architecture: standalone
         # Ingress configuration
         ingress:
           enabled: true

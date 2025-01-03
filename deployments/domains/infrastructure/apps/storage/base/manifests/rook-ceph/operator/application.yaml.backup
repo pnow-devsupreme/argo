@@ -1,0 +1,76 @@
+# File: deployments/domains/infrastructure/apps/storage/base/rook-ceph/operator/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rook-ceph-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://charts.rook.io/release
+    targetRevision: v1.12.3
+    chart: rook-ceph
+    helm:
+      values: |
+        crds:
+          enabled: true
+        image:
+          repository: rook/ceph
+          tag: v1.12.3
+          pullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        tolerations:
+          - effect: NoSchedule
+            operator: Exists
+        nodeSelector: {}
+        # Enable monitoring
+        monitoring:
+          enabled: true
+          createPrometheusRules: true
+        # Enable the CSI driver
+        csi:
+          enableRbdDriver: true
+          enableCephfsDriver: true
+          provisionerTolerations:
+            - effect: NoSchedule
+              operator: Exists
+          pluginTolerations:
+            - effect: NoSchedule
+              operator: Exists
+        # Configure priority classes
+        priorityClassName: system-cluster-critical
+        # Enable required security contexts
+        hostpathRequiresPrivileged: true
+        # Discovery configurations
+        discover:
+          tolerations:
+            - effect: NoSchedule
+              operator: Exists
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rook-ceph
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

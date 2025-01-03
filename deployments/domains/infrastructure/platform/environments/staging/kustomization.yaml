@@ -4,3 +4,4 @@ resources:
   - ../../../apps/networking/environments/staging
   - ../../../apps/argocd-config/environments/staging
   - ../../../apps/security/environments/staging
+  - ../../../apps/storage/environments/staging

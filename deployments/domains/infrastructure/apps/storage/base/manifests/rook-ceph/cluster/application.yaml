@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rook-ceph-cluster
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1" # This ensures it runs after the operator
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pnow-devsupreme/argo.git
+    path: deployments/rook-ceph/cluster
+    targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rook-ceph
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  ignoreDifferences:
+    - group: ceph.rook.io
+      kind: CephCluster
+      jsonPointers:
+        - /spec/cephVersion/image

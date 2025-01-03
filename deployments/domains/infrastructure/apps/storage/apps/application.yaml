@@ -1,0 +1,119 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rook-ceph-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.rook.io/release
+    chart: rook-ceph
+    targetRevision: v1.11.1
+    helm:
+      values: |-
+        image:
+          repository: docker.io/rook/ceph
+          tag: v1.11.1
+          pullPolicy: IfNotPresent
+        crds:
+          enabled: true
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 200m
+            memory: 128Mi
+        csi:
+          # Enable RBD for block storage (databases)
+          enableRbdDriver: true
+          # Enable CephFS for shared filesystem needs
+          enableCephfsDriver: true
+          # Disable RGW since we'll use MinIO
+          enableRgwDriver: false
+          # Use host networking for better performance
+          enableCSIHostNetwork: true
+          # Configure CSI topology for better data locality
+          topology:
+            enabled: true
+            domainLabels:
+              - kubernetes.io/hostname
+              - topology.kubernetes.io/zone
+          enableMetadata: false
+          # Provisioner configurations for database workloads
+          provisionerReplicas: 2
+          enableOMAPGenerator: true  # Enable for better volume management
+          enableRBDSnapshotter: true # Enable for backup capabilities
+          # Optimize CSI settings for database workloads
+          csiRBDProvisionerResource: |
+            - name: csi-provisioner
+              resource:
+                requests:
+                  memory: 256Mi
+                  cpu: 100m
+                limits:
+                  memory: 512Mi
+                  cpu: 200m
+            - name: csi-rbdplugin
+              resource:
+                requests:
+                  memory: 512Mi
+                  cpu: 250m
+                limits:
+                  memory: 1Gi
+                  cpu: 500m
+            - name: csi-omap-generator
+              resource:
+                requests:
+                  memory: 512Mi
+                  cpu: 250m
+                limits:
+                  memory: 1Gi
+          # Configure RBD plugin for optimal database performance
+          rbdFSGroupPolicy: "File"
+        # Enable discovery daemon for automated device management
+        discover:
+          enabled: true
+          tolerations:
+            - operator: Exists
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        # Configure priority classes for critical components
+        priorityClassNames:
+          all: system-node-critical
+        # Enable monitoring for better observability
+        monitoring:
+          enabled: true
+        # Disable Pod Security Policy since it's deprecated in newer K8s versions
+        pspEnable: false
+        logLevel: 3
+        discover:
+          enabled: true
+          # Resource requirements for the discovery daemon
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+        # Configure health checks
+        healthCheck:
+          timeout: 30
+    destination:
+    server: https://kubernetes.default.svc
+    namespace: rook-ceph-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
