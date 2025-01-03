@@ -24,6 +24,25 @@ spec:
   dashboard:
     enabled: true
     ssl: false # Disabled for easier initial access
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - k8s-master.pnhyd.local
+    osd:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - k8s-master.pnhyd.local
   # Storage configuration using your LVM devices
   storage:
     useAllNodes: false
@@ -32,7 +51,7 @@ spec:
       osdsPerDevice: "1" # Each LV will host one OSD
       storeType: bluestore # Modern, efficient storage backend
     nodes:
-      - name: "k8s-master" # Your node name as shown in the command output
+      - name: "k8s-master.pnhyd.local" # Your node name as shown in the command output
         devices:
           # sdb1 logical volumes
           - name: "/dev/disk/by-id/dm-name-ceph_pool_sdb1-osd_volume_sdb1_1" # Maps to dm-1
