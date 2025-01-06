@@ -1,6 +1,22 @@
-# Enable toolbox as requested
+
+# Installs a debugging toolbox deployment
 toolbox:
-  enabled: true
+  # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
+  enabled: false
+  # -- Toolbox image, defaults to the image used by the Ceph cluster
+  image: #quay.io/ceph/ceph:v19.2.0
+  # -- Toolbox tolerations
+  tolerations: []
+  # -- Toolbox affinity
+  affinity: {}
+  # -- Toolbox container security context
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 2016
+    runAsGroup: 2016
+    capabilities:
+      drop: ["ALL"]
+  # -- Toolbox resources
   resources:
     limits:
       memory: "1Gi"
@@ -10,14 +26,34 @@ toolbox:
 # Main cluster configuration
 operatorNamespace: rook-ceph
 clusterName: rook-ceph
-# Configure monitoring
 monitoring:
-  enabled: true
-  createPrometheusRules: true
+  # -- Enable Prometheus integration, will also create necessary RBAC rules to allow Operator to create ServiceMonitors.
+  # Monitoring requires Prometheus to be pre-installed
+  enabled: false
+  # -- Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled
+  metricsDisabled: false
+  # -- Whether to create the Prometheus rules for Ceph alerts
+  createPrometheusRules: false
+  # -- The namespace in which to create the prometheus rules, if different from the rook cluster namespace.
+  # If you have multiple rook-ceph clusters in the same k8s cluster, choose the same namespace (ideally, namespace with prometheus
+  # deployed) to set rulesNamespaceOverride for all the clusters. Otherwise, you will get duplicate alerts with multiple alert definitions.
+  rulesNamespaceOverride:
+  # Monitoring settings for external clusters:
+  # externalMgrEndpoints: <list of endpoints>
+  # externalMgrPrometheusPort: <port>
+  # Scrape interval for prometheus
+  # interval: 10s
+  # allow adding custom labels and annotations to the prometheus rule
+  prometheusRule:
+    # -- Labels applied to PrometheusRule
+    labels: {}
+    # -- Annotations applied to PrometheusRule
+    annotations: {}
+
 # Main Ceph cluster specification
 cephClusterSpec:
   cephVersion:
-    image: quay.io/ceph/ceph:v18.2.1
+    image: quay.io/ceph/ceph:v19.2.0
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   # Single node configuration
@@ -30,8 +66,7 @@ cephClusterSpec:
   dashboard:
     enabled: true
     ssl: false
-    port: 7000 # Setting the dashboard port to match ingress configuration
-  # Network configuration
+    port: 7000
   network:
     provider: host
   # Storage configuration
