@@ -117,3 +117,7 @@ spec:
       - PrunePropagationPolicy=foreground
       - PruneLast=true
       - ServerSideApply=true
+      - Replace=true
+    managedNamespaceMetadata:
+      labels:
+        rook-ceph-operator: managed
