@@ -1,0 +1,163 @@
+# Enable toolbox as requested
+toolbox:
+  enabled: true
+  resources:
+    limits:
+      memory: "1Gi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+# Main cluster configuration
+operatorNamespace: rook-ceph
+clusterName: rook-ceph
+# Configure monitoring
+monitoring:
+  enabled: true
+  createPrometheusRules: true
+# Main Ceph cluster specification
+cephClusterSpec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v18.2.1
+    allowUnsupported: false
+  dataDirHostPath: /var/lib/rook
+  # Single node configuration
+  mon:
+    count: 3
+    allowMultiplePerNode: true
+  mgr:
+    count: 3
+    allowMultiplePerNode: true
+  dashboard:
+    enabled: true
+    ssl: false
+    port: 7000 # Setting the dashboard port to match ingress configuration
+  # Network configuration
+  network:
+    provider: host
+  # Storage configuration
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    nodes:
+      - name: "k8s-master.pnhyd.local" # Replace with your node name
+        devices:
+          # First disk - sdb partitions
+          - name: "/dev/sdb1"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdb2"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdb3"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdb4"
+            config:
+              osdsPerDevice: "4"
+          # Second disk - sdc partitions
+          - name: "/dev/sdc1"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdc2"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdc3"
+            config:
+              osdsPerDevice: "4"
+          - name: "/dev/sdc4"
+            config:
+              osdsPerDevice: "4"
+  # Resource configuration
+  resources:
+    mgr:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+    mon:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+    osd:
+      limits:
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+  # Placement for single node
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+# Storage Pools Configuration
+cephBlockPools:
+  - name: replicapool
+    spec:
+      failureDomain: osd # Using OSD as failure domain since all on same node
+      replicated:
+        size: 1 # No replication as requested
+    storageClass:
+      enabled: true
+      name: ceph-block
+      isDefault: true
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      parameters:
+        imageFormat: "2"
+        imageFeatures: layering
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/fstype: ext4
+cephFileSystems:
+  - name: ceph-fs
+    spec:
+      metadataPool:
+        replicated:
+          size: 1
+      dataPools:
+        - name: data0
+          replicated:
+            size: 1
+      metadataServer:
+        activeCount: 1
+        activeStandby: true
+    storageClass:
+      enabled: true
+      name: ceph-filesystem
+      reclaimPolicy: Delete
+      parameters:
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+# Ingress configuration for Ceph Dashboard
+ingress:
+  dashboard:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-verify: "false"
+    ingressClassName: nginx
+    host:
+      name: ceph.proficientnowtech.com
+      path: /
+      pathType: Prefix
+    tls:
+      - hosts:
+          - ceph.proficientnowtech.com
+        secretName: ceph-dashboard-tls

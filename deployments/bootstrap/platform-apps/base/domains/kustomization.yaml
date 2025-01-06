@@ -5,5 +5,4 @@ resources:
   - workloads/application.yaml
   - infrastructure/application.yaml
   - applications/application.yaml
-  # - infrastructure/ceph-cluster.yaml
   # - environments/application.yaml
