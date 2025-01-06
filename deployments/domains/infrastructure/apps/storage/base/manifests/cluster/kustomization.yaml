@@ -1,6 +1,8 @@
 # deployments/domains/infrastructure/storage/base/storage-classes/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
-  - cluster.yaml
-  - pool.yaml
+resources: []
+
+# - cluster.yaml
+# - pool.yaml
+# - toolbox.yaml
