@@ -17,7 +17,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: 'https://github.com/rook/rook' # Official Rook release repository
+        repoURL: 'https://charts.rook.io/release' # Official Rook release repository
         targetRevision: v1.15.7 # Specify the desired version
         chart: rook-ceph
         helm:
