@@ -1,0 +1,73 @@
+# Enable creation and management of CRDS
+# This is important for initial deployment
+crds:
+  enabled: true
+# Image configuration
+image:
+  repository: docker.io/rook/ceph
+  pullPolicy: IfNotPresent
+  # Using a specific version tag instead of 'master' for stability
+  tag: v1.15.7
+# Operator resources as recommended in documentation
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 128Mi
+# Enable monitoring for better observability
+monitoring:
+  enabled: true
+# CSI Driver configuration
+csi:
+  enableCSIHostNetwork: true
+  provisionerReplicas: 2
+  # Enable encryption support
+  enableCSIEncryption: true
+  # CSI driver resource configurations
+  csiRBDProvisionerResource:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  csiRBDPluginResource:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # Set logging level
+  logLevel: "0"
+  # Enable volume replication for high availability
+  enableVolumeReplication: true
+  # Configure topology awareness if needed
+  topology:
+    enabled: true
+    domainLabels:
+      - kubernetes.io/hostname
+      - topology.kubernetes.io/zone
+# Enable discovery daemon for automatic device discovery
+enableDiscoveryDaemon: true
+discoveryDaemonInterval: "60m"
+# Set global log level
+logLevel: INFO
+# Configure RBAC
+rbacEnable: true
+# Priority class for critical system components
+priorityClassName: system-cluster-critical
+# Node selector for operator placement
+nodeSelector:
+  node-role.kubernetes.io/control-plane: ""
+# Tolerations to ensure operator runs on control plane nodes
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+# Security context for the operator container
+containerSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 2016
+  runAsGroup: 2016
+  capabilities:
+    drop: ["ALL"]
