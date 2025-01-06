@@ -10,6 +10,17 @@ spec:
     allowUnsupported: false
   # This directory stores Ceph's configuration and monitor data
   dataDirHostPath: /var/lib/rook
+  toolbox:
+    enabled: true
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+    nodeSelector:
+      kubernetes.io/hostname: k8s-master.pnhyd.local
+  monitoring:
+    enabled: true
+    rulesNamespace: rook-ceph
   # Monitor configuration - Monitors are critical for cluster health
   mon:
     count: 3
