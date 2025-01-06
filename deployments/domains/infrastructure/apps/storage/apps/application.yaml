@@ -88,7 +88,7 @@ spec:
           all: system-node-critical
         # Enable monitoring for better observability
         monitoring:
-          enabled: true
+          enabled: false
         # Disable Pod Security Policy since it's deprecated in newer K8s versions
         pspEnable: false
         logLevel: 3
