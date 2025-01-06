@@ -19,8 +19,7 @@ spec:
     nodeSelector:
       kubernetes.io/hostname: k8s-master.pnhyd.local
   monitoring:
-    enabled: true
-    rulesNamespace: rook-ceph
+    enabled: false
   # Monitor configuration - Monitors are critical for cluster health
   mon:
     count: 3
@@ -28,6 +27,7 @@ spec:
   # Manager configuration - Handles the dashboard and monitoring
   mgr:
     count: 1 # Single manager is sufficient for our setup
+    allowMultiplePerNode: true
     modules:
       - name: pg_autoscaler
         enabled: true # Helps with automatic placement group scaling
