@@ -4,6 +4,6 @@ kind: Kustomization
 resources:
   - workloads/application.yaml
   - infrastructure/application.yaml
-  - infrastructure/ceph-cluster.yaml
   - applications/application.yaml
+  # - infrastructure/ceph-cluster.yaml
   # - environments/application.yaml
