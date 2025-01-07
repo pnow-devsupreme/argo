@@ -187,7 +187,7 @@ spec:
           # Storage configuration
           storage:
             useAllNodes: false
-            useAllDevices: true
+            useAllDevices: false
             config:
               osdsPerDevice: "4" # this value can be overridden at the node or device level
             nodes:
