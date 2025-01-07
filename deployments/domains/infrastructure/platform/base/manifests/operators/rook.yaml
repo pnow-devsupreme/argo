@@ -89,29 +89,17 @@ spec:
               - topology.kubernetes.io/zone
 
           # CSI Node Placement
-          provisionerNodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: kubernetes.io/hostname
-                      operator: In
-                      values:
-                        - k8s-master.pnhyd.local
+          # CSI provisioner configuration - handles the actual mounting of volumes on nodes
+          provisionerNodeAffinity: "kubernetes.io/hostname=k8s-master.pnhyd.local"
           provisionerTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
               effect: NoSchedule
           provisionerPriorityClassName: system-cluster-critical
           provisionerReplicas: 1
-          # CSI Plugin configuration - handles the actual mounting of volumes on nodes
-          pluginNodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: kubernetes.io/hostname
-                      operator: In
-                      values:
-                        - k8s-master.pnhyd.local
+
+          # CSI plugin placement - also targets the control plane node
+          pluginNodeAffinity: "kubernetes.io/hostname=k8s-master.pnhyd.local"
           pluginTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
