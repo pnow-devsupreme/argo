@@ -83,7 +83,7 @@ spec:
 
           # CSI Topology
           topology:
-            enabled: true
+            enabled: false
             domainLabels:
               - kubernetes.io/hostname
               - topology.kubernetes.io/zone
