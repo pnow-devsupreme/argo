@@ -186,37 +186,23 @@ spec:
             mgr: system-cluster-critical
           # Storage configuration
           storage:
-            useAllNodes: true
+            useAllNodes: false
             useAllDevices: true
+            config:
+              osdsPerDevice: "4" # this value can be overridden at the node or device level
             nodes:
               - name: "k8s-master.pnhyd.local"
                 devices:
                   # First disk - sdb partitions
                   - name: "/dev/sdb1"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdb2"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdb3"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdb4"
-                    config:
-                      osdsPerDevice: "4"
                   # Second disk - sdc partitions
                   - name: "/dev/sdc1"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdc2"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdc3"
-                    config:
-                      osdsPerDevice: "4"
                   - name: "/dev/sdc4"
-                    config:
-                      osdsPerDevice: "4"
           # Configure the healthcheck and liveness probes for ceph pods.
           # Valid values for daemons are 'mon', 'osd', 'status'
           healthCheck:
