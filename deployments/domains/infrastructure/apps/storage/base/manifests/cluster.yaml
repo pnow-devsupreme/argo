@@ -101,6 +101,20 @@ spec:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
                   effect: NoSchedule
+            # OSDs placement
+            osd:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                  - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                      - k8s-master.pnhyd.local
+              tolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
             # MDS specific placement
             mds:
               nodeAffinity:
