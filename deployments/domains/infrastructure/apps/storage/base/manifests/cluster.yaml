@@ -102,12 +102,15 @@ spec:
           # Placement for single node
           placement:
             all:
-              nodeAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  nodeSelectorTerms:
-                    - matchExpressions:
-                        - key: node-role.kubernetes.io/control-plane
-                          operator: Exists
+              nodeSelector:
+                kubernetes.io/hostname: "k8s-master.pnhyd.local"
+              tolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
+                - key: node-role.kubernetes.io/master
+                  operator: Exists
+                  effect: NoSchedule
         # Storage Pools Configuration
         cephBlockPools:
           - name: replicapool
