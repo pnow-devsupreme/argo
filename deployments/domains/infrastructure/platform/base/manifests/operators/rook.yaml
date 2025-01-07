@@ -23,6 +23,7 @@ spec:
           requests:
             cpu: 200m
             memory: 128Mi
+        pspEnable: false
         csi:
           enableCSIHostNetwork: true
           provisionerReplicas: 2
@@ -51,16 +52,56 @@ spec:
             domainLabels:
               - kubernetes.io/hostname
               - topology.kubernetes.io/zone
+          provisionerTolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
+              pluginTolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
+              # Node selection for CSI components
+              provisioner:
+                nodeSelector:
+                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
+              plugin:
+                nodeSelector:
+                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
         # Enable discovery daemon for automatic device discovery
         enableDiscoveryDaemon: true
+        discover:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - k8s-master.pnhyd.local
         discoveryDaemonInterval: "60m"
         # Set global log level
         logLevel: INFO
         # Configure RBAC
         rbacEnable: true
+        securityContext:
+          runAsUser: 2016
+          runAsGroup: 2016
+          fsGroup: 2016
         # Priority class for critical system components
         priorityClassName: system-cluster-critical
         # Node selector for operator placement
+        placement:
+              all:
+                nodeSelector:
+                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
+                tolerations:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+                    effect: NoSchedule
         nodeSelector:
           kubernetes.io/hostname: "k8s-master.pnhyd.local"
         # Tolerations to ensure operator runs on control plane nodes
