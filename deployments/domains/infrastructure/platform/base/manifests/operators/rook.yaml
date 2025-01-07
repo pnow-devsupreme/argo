@@ -89,29 +89,39 @@ spec:
               - topology.kubernetes.io/zone
 
           # CSI Node Placement
+          provisionerNodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - k8s-master.pnhyd.local
           provisionerTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
               effect: NoSchedule
+          provisionerPriorityClassName: system-cluster-critical
+          provisionerReplicas: 1
+          # CSI Plugin configuration - handles the actual mounting of volumes on nodes
+          pluginNodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - k8s-master.pnhyd.local
           pluginTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
               effect: NoSchedule
-          provisioner:
-            nodeSelector:
-              kubernetes.io/hostname: "k8s-master.pnhyd.local"
-          plugin:
-            nodeSelector:
-              kubernetes.io/hostname: "k8s-master.pnhyd.local"
+          pluginPriorityClassName: system-node-critical
 
         # Discovery Configuration
         enableDiscoveryDaemon: true
         discoveryDaemonInterval: "60m"
         discover:
-          tolerations:
-            - key: node-role.kubernetes.io/control-plane
-              operator: Exists
-              effect: NoSchedule
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
@@ -120,6 +130,11 @@ spec:
                       operator: In
                       values:
                         - k8s-master.pnhyd.local
+          tolerationKey: node-role.kubernetes.io/control-plane
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
 
         # Logging Configuration
         logLevel: INFO
