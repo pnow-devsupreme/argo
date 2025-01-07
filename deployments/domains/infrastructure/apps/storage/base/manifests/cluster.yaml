@@ -13,8 +13,7 @@ spec:
       values: |-
         # Installs a debugging toolbox deployment
         toolbox:
-          enabled: false
-          image: quay.io/ceph/ceph:v19.2.0
+          enabled: true
           containerSecurityContext:
             runAsNonRoot: true
             runAsUser: 2016
@@ -33,7 +32,7 @@ spec:
             image: quay.io/ceph/ceph:v19.2.0
             allowUnsupported: false
           dataDirHostPath: /var/lib/rook
-          # Multi node configuration
+          # Currently Single node configuration
           mon:
             count: 1
             allowMultiplePerNode: true
@@ -46,6 +45,77 @@ spec:
             port: 7000
           network:
             provider: host
+
+          # Placement for single node
+          placement:
+            all:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: kubernetes.io/hostname
+                        operator: In
+                        values:
+                        - k8s-master.pnhyd.local
+              tolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
+          # Resource configuration
+          resources:
+            mgr:
+              limits:
+                memory: "1Gi"
+              requests:
+                cpu: "500m"
+                memory: "512Mi"
+            mon:
+              limits:
+                memory: "2Gi"
+              requests:
+                cpu: "1000m"
+                memory: "1Gi"
+            osd:
+              limits:
+                memory: "2Gi"
+              requests:
+                cpu: "1000m"
+                memory: "1500Mi"
+            mgr-sidecar:
+              limits:
+                memory: "100Mi"
+              requests:
+                cpu: "100m"
+                memory: "40Mi"
+            crashcollector:
+              limits:
+                memory: "60Mi"
+              requests:
+                cpu: "100m"
+                memory: "60Mi"
+            logcollector:
+              limits:
+                memory: "1Gi"
+              requests:
+                cpu: "100m"
+                memory: "100Mi"
+            cleanup:
+              limits:
+                memory: "1Gi"
+              requests:
+                cpu: "500m"
+                memory: "100Mi"
+            exporter:
+              limits:
+                memory: "128Mi"
+              requests:
+                cpu: "50m"
+                memory: "50Mi"
+          # priority classes to apply to ceph resources
+          priorityClassNames:
+            mon: system-node-critical
+            osd: system-node-critical
+            mgr: system-cluster-critical
           # Storage configuration
           storage:
             useAllNodes: false
@@ -79,41 +149,48 @@ spec:
                   - name: "/dev/sdc4"
                     config:
                       osdsPerDevice: "4"
-          # Resource configuration
-          resources:
-            mgr:
-              limits:
-                memory: "1Gi"
-              requests:
-                cpu: "500m"
-                memory: "512Mi"
-            mon:
-              limits:
-                memory: "1Gi"
-              requests:
-                cpu: "500m"
-                memory: "512Mi"
-            osd:
-              limits:
-                memory: "2Gi"
-              requests:
-                cpu: "500m"
-                memory: "1Gi"
-          # Placement for single node
-          placement:
-            all:
-              nodeSelector:
-                kubernetes.io/hostname: "k8s-master.pnhyd.local"
-              tolerations:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: Exists
-                  effect: NoSchedule
-                - key: node-role.kubernetes.io/master
-                  operator: Exists
-                  effect: NoSchedule
+          # Configure the healthcheck and liveness probes for ceph pods.
+          # Valid values for daemons are 'mon', 'osd', 'status'
+          healthCheck:
+            daemonHealth:
+              mon:
+                disabled: false
+                interval: 45s
+              osd:
+                disabled: false
+                interval: 60s
+              status:
+                disabled: false
+                interval: 60s
+            # Change pod liveness probe, it works for all mon, mgr, and osd pods.
+            livenessProbe:
+              mon:
+                disabled: false
+              mgr:
+                disabled: false
+              osd:
+                disabled: false
+        # Ingress configuration for Ceph Dashboard
+        ingress:
+          dashboard:
+            enabled: true
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"
+              nginx.ingress.kubernetes.io/ssl-verify: "false"
+            ingressClassName: nginx
+            host:
+              name: ceph.proficientnowtech.com
+              path: /
+              pathType: Prefix
+            tls:
+              - hosts:
+                  - ceph.proficientnowtech.com
+                secretName: ceph-dashboard-tls
         # Storage Pools Configuration
         cephBlockPools:
-          - name: replicapool
+          - name: ceph-block-replicapool
             spec:
               failureDomain: osd # Using OSD as failure domain since all on same node
               replicated:
@@ -124,6 +201,7 @@ spec:
               isDefault: true
               reclaimPolicy: Delete
               allowVolumeExpansion: true
+              volumeBindingMode: "Immediate"
               parameters:
                 imageFormat: "2"
                 imageFeatures: layering
@@ -147,10 +225,21 @@ spec:
               metadataServer:
                 activeCount: 1
                 activeStandby: true
+                resources:
+                  limits:
+                    memory: "4Gi"
+                  requests:
+                    cpu: "1000m"
+                    memory: "4Gi"
+                priorityClassName: system-cluster-critical
             storageClass:
               enabled: true
+              isDefault: false
               name: ceph-filesystem
+              pool: data0
               reclaimPolicy: Delete
+              allowVolumeExpansion: true
+              volumeBindingMode: "Immediate"
               parameters:
                 csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
                 csi.storage.k8s.io/provisioner-secret-namespace: "rook-ceph"
@@ -158,24 +247,93 @@ spec:
                 csi.storage.k8s.io/controller-expand-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
                 csi.storage.k8s.io/node-stage-secret-namespace: "rook-ceph"
-        # Ingress configuration for Ceph Dashboard
-        ingress:
-          dashboard:
-            enabled: true
-            annotations:
-              cert-manager.io/cluster-issuer: letsencrypt-prod
-              nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-              nginx.ingress.kubernetes.io/ssl-redirect: "true"
-              nginx.ingress.kubernetes.io/ssl-verify: "false"
-            ingressClassName: nginx
-            host:
-              name: ceph.proficientnowtech.com
-              path: /
-              pathType: Prefix
-            tls:
-              - hosts:
-                  - ceph.proficientnowtech.com
-                secretName: ceph-dashboard-tls
+        cephFileSystemVolumeSnapshotClass:
+          enabled: false
+          name: ceph-filesystem
+          isDefault: true
+          deletionPolicy: Delete
+          annotations: {}
+          labels: {}
+          # see https://rook.io/docs/rook/v1.10/Storage-Configuration/Ceph-CSI/ceph-csi-snapshot/#cephfs-snapshots for available configuration
+          parameters: {}
+
+        # -- Settings for the block pool snapshot class
+        # @default -- See [RBD Snapshots](../Storage-Configuration/Ceph-CSI/ceph-csi-snapshot.md#rbd-snapshots)
+        cephBlockPoolsVolumeSnapshotClass:
+          enabled: false
+          name: ceph-block
+          isDefault: false
+          deletionPolicy: Delete
+          annotations: {}
+          labels: {}
+          # see https://rook.io/docs/rook/v1.10/Storage-Configuration/Ceph-CSI/ceph-csi-snapshot/#rbd-snapshots for available configuration
+          parameters: {}
+        cephObjectStores:
+          - name: ceph-objectstore
+            # see https://github.com/rook/rook/blob/master/Documentation/CRDs/Object-Storage/ceph-object-store-crd.md#object-store-settings for available configuration
+            spec:
+              metadataPool:
+                failureDomain: osd
+                replicated:
+                  size: 1
+              dataPool:
+                failureDomain: osd
+                erasureCoded:
+                  dataChunks: 2
+                  codingChunks: 1
+                parameters:
+                  bulk: "true"
+              protocols:
+                s3:
+                  enabled: true
+              preservePoolsOnDelete: true
+              gateway:
+                port: 8090
+                resources:
+                  limits:
+                    memory: "2Gi"
+                  requests:
+                    cpu: "1000m"
+                    memory: "1Gi"
+                # securePort: 443
+                # sslCertificateRef:
+                instances: 1
+                priorityClassName: system-cluster-critical
+                # opsLogSidecar:
+                #   resources:
+                #     limits:
+                #       memory: "100Mi"
+                #     requests:
+                #       cpu: "100m"
+                #       memory: "40Mi"
+            storageClass:
+              enabled: true
+              name: ceph-bucket
+              reclaimPolicy: Delete
+              volumeBindingMode: "Immediate"
+              annotations: {}
+              labels: {}
+              # see https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim.md#storageclass for available configuration
+              parameters:
+                # note: objectStoreNamespace and objectStoreName are configured by the chart
+                region: ap-south-1
+            ingress:
+              # Enable an ingress for the ceph-objectstore
+              enabled: true
+              annotations:
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+                nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                nginx.ingress.kubernetes.io/ssl-redirect: "true"
+                nginx.ingress.kubernetes.io/ssl-verify: "false"
+              ingressClassName: nginx
+              host:
+                name: s3.proficientnowtech.com
+                path: /
+                pathType: Prefix
+              tls:
+                - hosts:
+                    - s3.proficientnowtech.com
+                  secretName: ceph-objectstore-tls
   destination:
     server: https://kubernetes.default.svc
     namespace: rook-ceph
