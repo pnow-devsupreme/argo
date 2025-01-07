@@ -53,10 +53,10 @@ spec:
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
                     - matchExpressions:
-                      - key: kubernetes.io/hostname
-                        operator: In
-                        values:
-                        - k8s-master.pnhyd.local
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values:
+                            - k8s-master.pnhyd.local
               tolerations:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
