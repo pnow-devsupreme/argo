@@ -63,7 +63,7 @@ spec:
         csi:
           enableCSIHostNetwork: true
           provisionerReplicas: 2
-          enableCSIEncryption: true
+          enableCSIEncryption: false
           logLevel: "0"
           enableVolumeReplication: true
 
