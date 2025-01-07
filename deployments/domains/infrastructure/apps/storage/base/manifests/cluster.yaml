@@ -35,10 +35,10 @@ spec:
           dataDirHostPath: /var/lib/rook
           # Multi node configuration
           mon:
-            count: 3
+            count: 1
             allowMultiplePerNode: true
           mgr:
-            count: 2
+            count: 1
             allowMultiplePerNode: true
           dashboard:
             enabled: true
@@ -182,6 +182,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
     retry:
       limit: 5
       backoff:
