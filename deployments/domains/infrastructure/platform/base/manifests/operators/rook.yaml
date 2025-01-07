@@ -13,23 +13,16 @@ spec:
       values: |-
         crds:
           enabled: true
-        # Image configuration
         image:
           repository: docker.io/rook/ceph
           pullPolicy: IfNotPresent
-          # Using a specific version tag instead of 'master' for stability
           tag: v1.15.7
-        # Operator resources as recommended in documentation
         resources:
           limits:
             memory: 512Mi
           requests:
             cpu: 200m
             memory: 128Mi
-        # Enable monitoring for better observability
-        monitoring:
-          enabled: true
-        # CSI Driver configuration
         csi:
           enableCSIHostNetwork: true
           provisionerReplicas: 2
@@ -69,7 +62,7 @@ spec:
         priorityClassName: system-cluster-critical
         # Node selector for operator placement
         nodeSelector:
-          node-role.kubernetes.io/control-plane: ""
+          kubernetes.io/hostname: "k8s-master.pnhyd.local"
         # Tolerations to ensure operator runs on control plane nodes
         tolerations:
           - key: node-role.kubernetes.io/control-plane
