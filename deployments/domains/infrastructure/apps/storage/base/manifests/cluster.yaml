@@ -20,6 +20,12 @@ spec:
             runAsGroup: 2016
             capabilities:
               drop: ["ALL"]
+          affinity:
+            nodeSelector: "kubernetes.io/hostname=k8s-master.pnhyd.local"
+          tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule
           resources:
             limits:
               memory: "1Gi"
