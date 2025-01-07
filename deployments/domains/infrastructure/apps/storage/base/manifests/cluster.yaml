@@ -172,8 +172,8 @@ spec:
             mgr: system-cluster-critical
           # Storage configuration
           storage:
-            useAllNodes: false
-            useAllDevices: false
+            useAllNodes: true
+            useAllDevices: true
             nodes:
               - name: "k8s-master.pnhyd.local"
                 devices:
