@@ -6,30 +6,68 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://charts.rook.io/release' # Official Rook release repository
-    targetRevision: v1.15.7 # Specify the desired version
+    repoURL: 'https://charts.rook.io/release'
+    targetRevision: v1.15.7
     chart: rook-ceph
     helm:
       values: |-
+        # CRD Configuration
         crds:
           enabled: true
+
+        # Image Configuration
         image:
           repository: docker.io/rook/ceph
           pullPolicy: IfNotPresent
           tag: v1.15.7
+
+        # Resource Configuration
         resources:
           limits:
             memory: 512Mi
           requests:
             cpu: 200m
             memory: 128Mi
+
+        # Security Configuration
         pspEnable: false
+        rbacEnable: true
+        securityContext:
+          runAsUser: 2016
+          runAsGroup: 2016
+          fsGroup: 2016
+        containerSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 2016
+          runAsGroup: 2016
+          capabilities:
+            drop: ["ALL"]
+
+        # Node Placement Configuration
+        nodeSelector:
+          kubernetes.io/hostname: "k8s-master.pnhyd.local"
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule
+        placement:
+          all:
+            nodeSelector:
+              kubernetes.io/hostname: "k8s-master.pnhyd.local"
+            tolerations:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+                effect: NoSchedule
+
+        # CSI Configuration
         csi:
           enableCSIHostNetwork: true
           provisionerReplicas: 2
-          # Enable encryption support
           enableCSIEncryption: true
-          # CSI driver resource configurations
+          logLevel: "0"
+          enableVolumeReplication: true
+
+          # CSI Resources
           csiRBDProvisionerResource:
             limits:
               memory: 256Mi
@@ -42,33 +80,33 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
-          # Set logging level
-          logLevel: "0"
-          # Enable volume replication for high availability
-          enableVolumeReplication: true
-          # Configure topology awareness if needed
+
+          # CSI Topology
           topology:
             enabled: true
             domainLabels:
               - kubernetes.io/hostname
               - topology.kubernetes.io/zone
+
+          # CSI Node Placement
           provisionerTolerations:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: Exists
-                  effect: NoSchedule
-              pluginTolerations:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: Exists
-                  effect: NoSchedule
-              # Node selection for CSI components
-              provisioner:
-                nodeSelector:
-                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
-              plugin:
-                nodeSelector:
-                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
-        # Enable discovery daemon for automatic device discovery
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          pluginTolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          provisioner:
+            nodeSelector:
+              kubernetes.io/hostname: "k8s-master.pnhyd.local"
+          plugin:
+            nodeSelector:
+              kubernetes.io/hostname: "k8s-master.pnhyd.local"
+
+        # Discovery Configuration
         enableDiscoveryDaemon: true
+        discoveryDaemonInterval: "60m"
         discover:
           tolerations:
             - key: node-role.kubernetes.io/control-plane
@@ -82,43 +120,16 @@ spec:
                       operator: In
                       values:
                         - k8s-master.pnhyd.local
-        discoveryDaemonInterval: "60m"
-        # Set global log level
+
+        # Logging Configuration
         logLevel: INFO
-        # Configure RBAC
-        rbacEnable: true
-        securityContext:
-          runAsUser: 2016
-          runAsGroup: 2016
-          fsGroup: 2016
-        # Priority class for critical system components
+
+        # Priority Configuration
         priorityClassName: system-cluster-critical
-        # Node selector for operator placement
-        placement:
-              all:
-                nodeSelector:
-                  kubernetes.io/hostname: "k8s-master.pnhyd.local"
-                tolerations:
-                  - key: node-role.kubernetes.io/control-plane
-                    operator: Exists
-                    effect: NoSchedule
-        nodeSelector:
-          kubernetes.io/hostname: "k8s-master.pnhyd.local"
-        # Tolerations to ensure operator runs on control plane nodes
-        tolerations:
-          - key: node-role.kubernetes.io/control-plane
-            operator: Exists
-            effect: NoSchedule
-        # Security context for the operator container
-        containerSecurityContext:
-          runAsNonRoot: true
-          runAsUser: 2016
-          runAsGroup: 2016
-          capabilities:
-            drop: ["ALL"]
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: rook-ceph # As recommended in the documentation
+    namespace: rook-ceph
   syncPolicy:
     automated:
       prune: true
