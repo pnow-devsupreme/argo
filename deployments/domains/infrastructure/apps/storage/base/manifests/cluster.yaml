@@ -197,7 +197,7 @@ spec:
                 size: 1 # No replication as requested
             storageClass:
               enabled: true
-              name: ceph-block
+              name: ceph-block-storage-pool
               isDefault: true
               reclaimPolicy: Delete
               allowVolumeExpansion: true
