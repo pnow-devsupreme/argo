@@ -51,7 +51,7 @@ spec:
             useAllNodes: false
             useAllDevices: false
             nodes:
-              - name: "k8s-master.pnhyd.local" # Replace with your node name
+              - name: "k8s-master.pnhyd.local"
                 devices:
                   # First disk - sdb partitions
                   - name: "/dev/sdb1"
@@ -125,11 +125,11 @@ spec:
                 imageFormat: "2"
                 imageFeatures: layering
                 csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
-                csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/provisioner-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
-                csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/controller-expand-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
-                csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/node-stage-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/fstype: ext4
         cephFileSystems:
           - name: ceph-fs
@@ -150,11 +150,11 @@ spec:
               reclaimPolicy: Delete
               parameters:
                 csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
-                csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/provisioner-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
-                csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/controller-expand-secret-namespace: "rook-ceph"
                 csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
-                csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+                csi.storage.k8s.io/node-stage-secret-namespace: "rook-ceph"
         # Ingress configuration for Ceph Dashboard
         ingress:
           dashboard:
@@ -183,9 +183,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        maxDuration: 3m0s
-        factor: 2
