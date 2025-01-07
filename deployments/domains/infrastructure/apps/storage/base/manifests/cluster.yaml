@@ -57,10 +57,10 @@ spec:
                       operator: In
                       values:
                       - k8s-master.pnhyd.local
-                tolerations:
-                  - key: node-role.kubernetes.io/control-plane
-                    operator: Exists
-                    effect: NoSchedule
+              tolerations:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+                effect: NoSchedule
           # Resource configuration
           resources:
             mgr:
