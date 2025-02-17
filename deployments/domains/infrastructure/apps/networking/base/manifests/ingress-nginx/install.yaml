@@ -18,7 +18,7 @@ spec:
           service:
             type: NodePort
             externalIPs:
-              - 172.17.0.31
+              - 192.168.100.30
             ports:
               http: 80
               https: 443
