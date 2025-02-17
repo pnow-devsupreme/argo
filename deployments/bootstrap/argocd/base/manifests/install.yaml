@@ -22714,9 +22714,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/name: argocd-tls
     app.kubernetes.io/part-of: argocd
-  name: argocd-secret
+  name: argocd-tls
 type: Opaque
 ---
 apiVersion: v1
