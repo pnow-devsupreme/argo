@@ -15,7 +15,7 @@ spec:
   tls:
     - hosts:
         - argocd.proficientnowtech.com
-      secretName: argocd-secret
+      secretName: argocd-tls
   rules:
     - host: argocd.proficientnowtech.com
       http:
