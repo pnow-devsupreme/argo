@@ -15,7 +15,9 @@ spec:
   tls:
     - hosts:
         - argocd.proficientnowtech.com
-      secretName: argocd-tls
+      # secretName: argocd-tls
+        # TODO: Temp fix below. if was like the above line. but for some reason the secret is not being created with exact name.
+      secretName: argocd-tls-ccf2j
   rules:
     - host: argocd.proficientnowtech.com
       http:
