@@ -17,7 +17,7 @@ spec:
         - argocd.proficientnowtech.com
       # secretName: argocd-tls
         # TODO: Temp fix below. if was like the above line. but for some reason the secret is not being created with exact name.
-      secretName: argocd-secret
+      secretName: argocd-secret-prod
   rules:
     - host: argocd.proficientnowtech.com
       http:
