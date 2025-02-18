@@ -4,6 +4,7 @@ resources:
   - ingress.yaml
   - config-patch.yaml
   - clusterissuer.yaml
+  - certificate.yaml
 #  currently disabling
 # - serviceaccounts.yaml
 # - projects.yaml
