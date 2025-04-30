@@ -5,6 +5,6 @@ resources:
   - config-patch.yaml
   - clusterissuer.yaml
   - certificate.yaml
+  - projects.yaml
 #  currently disabling
 # - serviceaccounts.yaml
-# - projects.yaml
