@@ -4,15 +4,13 @@ metadata:
   name: argocd-secret-prod
   namespace: argocd
   annotations:
-    acme.cert-manager.io/http01-edit-in-place: "true"  # Optional: edits the secret in place
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    acme.cert-manager.io/http01-ingress-class: "nginx"
 spec:
+  secretName: argocd-secret-prod
   dnsNames:
     - argocd.pnats.cloud
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
     name: letsencrypt-prod
-  secretName: argocd-secret-prod
-  usages:
-    - digital signature
-    - key encipherment
