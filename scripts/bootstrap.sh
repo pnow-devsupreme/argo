@@ -412,7 +412,7 @@ REQUIRED_FILES=(
     "deployments/bootstrap/platform-apps/base/domains/infrastructure/application.yaml"
     "deployments/bootstrap/platform-apps/base/domains/applications/application.yaml"
     "deployments/bootstrap/platform-apps/base/domains/workloads/application.yaml"
-    "deployments/bootstrap/platform-apps/base/domains/infrastructure/argocd-main.yaml"
+    "deployments/bootstrap/platform-apps/base/ROOT_ARGO/argocd-main.yaml"
     "deployments/domains/infrastructure/apps/argocd/app/argocd.yaml"
 )
 

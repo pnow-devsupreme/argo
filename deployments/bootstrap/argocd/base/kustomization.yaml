@@ -3,7 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - manifests/namespace.yaml
-  - manifests/install
+  - manifests/install.yaml
   - manifests/projects.yaml
   #!TODO: The root-app.yaml will be applied manually after configuring repo access
   # - manifests/root-app.yaml
