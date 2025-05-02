@@ -521,9 +521,15 @@ else
     log "SUCCESS" "Namespace argocd created."
 fi
 
-# Deploy ArgoCD base installation
-log "INFO" "Deploying ArgoCD base installation..."
-$KUBE_CMD apply -k deployments/bootstrap/argocd/environments/$ENVIRONMENT
+# Add to the relevant part of your script:
+log "INFO" "Installing core ArgoCD components first..."
+$KUBE_CMD apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+log "INFO" "Waiting for ArgoCD CRDs to be registered..."
+sleep 30
+
+log "INFO" "Now applying custom configurations..."
+$KUBE_CMD apply -k deployments/bootstrap/argocd/environments/staging
 
 # Wait for ArgoCD controller to be ready (primary component)
 log "INFO" "Waiting for ArgoCD controller to become ready..."
