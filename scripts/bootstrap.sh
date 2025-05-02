@@ -145,6 +145,10 @@ while [[ $# -gt 0 ]]; do
             REPO_URL="$2"
             shift 2
             ;;
+        -b|--branch)
+            GIT_BRANCH="$2"
+            shift 2
+            ;;
         -u|--username)
             GIT_USERNAME="$2"
             shift 2
