@@ -9,6 +9,7 @@ set -e
 
 # Default values (can be overridden with command-line arguments)
 REPO_URL=""
+GIT_BRANCH=""
 ARGOCD_DOMAIN="argocd.pnats.cloud"
 METALLB_IP_RANGE="103.110.174.27-103.110.174.28"
 METALLB_ARGOCD_IP="103.110.174.28"
@@ -43,6 +44,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help                   Show this help message"
     echo "  -r, --repo URL               Git repository URL"
+    echo "  -b, --branch BRANCH          Upstream branch name to use"
     echo "  -u, --username USERNAME      Git username for HTTPS authentication"
     echo "  -p, --password TOKEN         Git password/token for HTTPS authentication"
     echo "  -k, --ssh-private-key PATH   Path to SSH private key for Git authentication"
@@ -377,13 +379,23 @@ log "STEP" "PHASE 2: CHECKING REPOSITORY STRUCTURE"
 
 # Clone repository temporarily
 TEMP_DIR=$(mktemp -d)
-log "INFO" "Cloning repository to temporary directory: $TEMP_DIR"
-if ! git clone "$REPO_URL" "$TEMP_DIR" > /dev/null 2>&1; then
-    log "ERROR" "Failed to clone repository $REPO_URL. Check your credentials and access rights."
-    rm -rf "$TEMP_DIR"
-    exit 1
+log "INFO" "Cloning repository to temporary directory: $TEMP_DIR (using branch: $GIT_BRANCH)"
+if ! git clone -b $GIT_BRANCH "$REPO_URL" "$TEMP_DIR" > /dev/null 2>&1; then
+    # Fallback to regular clone if branch-specific clone fails
+    if ! git clone "$REPO_URL" "$TEMP_DIR" > /dev/null 2>&1; then
+        log "ERROR" "Failed to clone repository $REPO_URL. Check your credentials and access rights."
+        rm -rf "$TEMP_DIR"
+        exit 1
+    else
+        # Try to checkout the correct branch after cloning
+        if ! (cd "$TEMP_DIR" && git checkout $GIT_BRANCH > /dev/null 2>&1); then
+            log "ERROR" "Failed to checkout branch '$GIT_BRANCH'. Branch may not exist."
+            rm -rf "$TEMP_DIR"
+            exit 1
+        fi
+    fi
 fi
-log "SUCCESS" "Repository cloned successfully."
+log "SUCCESS" "Repository cloned successfully using branch '$GIT_BRANCH'."
 
 # Check for required files
 log "TEST" "Checking for critical files in repository..."
