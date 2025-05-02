@@ -264,7 +264,7 @@ log "SUCCESS" "Found $NODE_COUNT nodes in the cluster."
 
 # Check node status
 log "TEST" "Checking node status..."
-NOT_READY_NODES=$($KUBE_CMD get nodes --no-headers | grep -v " Ready " | wc -l)
+NOT_READY_NODES=$($KUBE_CMD get nodes --no-headers | grep -v -E "Ready(,|\s)" | wc -l)
 if [ "$NOT_READY_NODES" -gt 0 ]; then
     log "ERROR" "Some nodes are not in Ready state!"
     $KUBE_CMD get nodes | tee -a "$LOG_FILE"
