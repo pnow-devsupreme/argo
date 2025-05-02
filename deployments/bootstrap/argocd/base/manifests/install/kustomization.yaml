@@ -7,7 +7,12 @@ metadata:
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 patches:
-  - patch: |-
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: argocd-server
+    patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -25,7 +30,12 @@ patches:
                       matchLabels:
                         app.kubernetes.io/name: argocd-server
                     topologyKey: kubernetes.io/hostname
-  - patch: |-
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: argocd-repo-server
+    patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -43,7 +53,12 @@ patches:
                       matchLabels:
                         app.kubernetes.io/name: argocd-repo-server
                     topologyKey: kubernetes.io/hostname
-  - patch: |-
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: argocd-application-controller
+    patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
