@@ -288,15 +288,48 @@ done
 
 # Verify MetalLB configuration
 log "TEST" "Verifying MetalLB configuration..."
-METALLB_CONFIG=$($KUBE_CMD get configmap -n metallb-system config -o jsonpath='{.data.config}' 2>/dev/null || echo "")
-if [ -z "$METALLB_CONFIG" ]; then
-    log "ERROR" "MetalLB configuration not found!"
-    exit 1
-elif ! echo "$METALLB_CONFIG" | grep -q "$METALLB_IP_RANGE"; then
-    log "ERROR" "MetalLB IP range $METALLB_IP_RANGE not found in configuration!"
-    exit 1
+
+# First check if MetalLB is using CRD-based configuration (newer versions)
+if $KUBE_CMD get crd ipaddresspools.metallb.io > /dev/null 2>&1; then
+    log "INFO" "Detected CRD-based MetalLB configuration"
+    
+    # Check for IPAddressPool resources
+    IP_POOLS=$($KUBE_CMD get ipaddresspools -n metallb-system -o json 2>/dev/null || echo "")
+    if [ -z "$IP_POOLS" ] || [ "$IP_POOLS" = "{}" ]; then
+        log "ERROR" "No IPAddressPool resources found in metallb-system namespace!"
+        exit 1
+    fi
+    
+    # Check if our IP range is in any pool
+    if ! echo "$IP_POOLS" | grep -q "$METALLB_IP_RANGE"; then
+        # Try alternative format (might be x.x.x.x-y.y.y.y instead of range)
+        IFS='-' read -r START_IP END_IP <<< "$METALLB_IP_RANGE"
+        if ! echo "$IP_POOLS" | grep -q "$START_IP" || ! echo "$IP_POOLS" | grep -q "$END_IP"; then
+            log "ERROR" "MetalLB IP range $METALLB_IP_RANGE not found in any IPAddressPool!"
+            exit 1
+        fi
+    fi
+    
+    # Check for L2Advertisement resources
+    L2_ADS=$($KUBE_CMD get l2advertisements -n metallb-system -o json 2>/dev/null || echo "")
+    if [ -z "$L2_ADS" ] || [ "$L2_ADS" = "{}" ]; then
+        log "ERROR" "No L2Advertisement resources found in metallb-system namespace!"
+        exit 1
+    fi
+    
+    log "SUCCESS" "MetalLB is properly configured with CRDs and the IP range $METALLB_IP_RANGE."
+else
+    # Fall back to checking for ConfigMap-based configuration (older versions)
+    METALLB_CONFIG=$($KUBE_CMD get configmap -n metallb-system config -o jsonpath='{.data.config}' 2>/dev/null || echo "")
+    if [ -z "$METALLB_CONFIG" ]; then
+        log "ERROR" "MetalLB configuration not found! Neither CRD nor ConfigMap configuration detected."
+        exit 1
+    elif ! echo "$METALLB_CONFIG" | grep -q "$METALLB_IP_RANGE"; then
+        log "ERROR" "MetalLB IP range $METALLB_IP_RANGE not found in configuration!"
+        exit 1
+    fi
+    log "SUCCESS" "MetalLB is properly configured with ConfigMap and the IP range $METALLB_IP_RANGE."
 fi
-log "SUCCESS" "MetalLB is properly configured with the IP range $METALLB_IP_RANGE."
 
 # Verify domain DNS resolution
 log "TEST" "Checking DNS resolution for $ARGOCD_DOMAIN..."
