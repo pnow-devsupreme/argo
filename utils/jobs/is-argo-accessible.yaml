@@ -1,0 +1,25 @@
+# Additional resource to check ArgoCD accessibility
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: check-argocd-access
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: check-argocd
+        image: curlimages/curl:latest
+        command:
+        - sh
+        - -c
+        - |
+          until curl -k https://argocd.pnats.cloud/api/v1/applications -f; do
+            echo "Waiting for ArgoCD to be accessible..."
+            sleep 10
+          done
+      restartPolicy: Never
+  backoffLimit: 10

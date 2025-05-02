@@ -1,4 +1,9 @@
+# deployments/domains/infrastructure/platform/base/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - manifests
+  # Infrastructure apps
+  - app-networking.yaml
+  - app-security.yaml
+  - app-observability.yaml
+  - app-storage.yaml

@@ -1,28 +1,6 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: cert-manager
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://charts.jetstack.io
-    targetRevision: v1.13.2
-    chart: cert-manager
-    helm:
-      values: |
-        installCRDs: true
-        ingressShim:
-          defaultIssuerName: letsencrypt-prod
-          defaultIssuerKind: ClusterIssuer
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: cert-manager
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
-      - PruneLast=true
+# deployments/domains/infrastructure/apps/networking/base/manifests/cert-manager/install.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cert-manager
+resources:
+  - https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml

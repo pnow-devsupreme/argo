@@ -1,4 +1,7 @@
+# deployments/bootstrap/platform-apps/environments/production/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
-resources: []
+metadata:
+  name: global-staging-platform-root-kustomize
+resources:
+  - ../../base

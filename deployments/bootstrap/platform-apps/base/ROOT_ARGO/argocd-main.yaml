@@ -1,15 +1,17 @@
-# File: deployments/bootstrap/platform-apps/base/domains/applications/application.yaml
+# File: deployments/bootstrap/platform-apps/base/domains/infrastructure/argocd-main.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: applications-root
+  name: argocd-self
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
-  project: applications
+  project: infrastructure
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
     targetRevision: HEAD
-    path: deployments/domains/applications/platform/base
+    path: deployments/domains/infrastructure/apps/argocd/app
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -18,6 +20,11 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: "30s"
+        factor: 2
+        maxDuration: "5m"

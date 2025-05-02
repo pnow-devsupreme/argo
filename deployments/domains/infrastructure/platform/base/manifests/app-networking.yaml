@@ -1,0 +1,21 @@
+# deployments/domains/infrastructure/platform/base/app-networking.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: networking
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/pnow-devsupreme/argo.git  # Replace with your GitHub repo URL
+    targetRevision: HEAD
+    path: deployments/domains/infrastructure/apps/networking/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: networking-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

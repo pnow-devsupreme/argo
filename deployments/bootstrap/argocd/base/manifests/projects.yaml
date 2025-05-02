@@ -1,11 +1,11 @@
-# File: deployments/bootstrap/argocd/base/manifests/projects.yaml
+# deployments/bootstrap/argocd/base/manifests/projects.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: infrastructure
   namespace: argocd
 spec:
-  description: Infrastructure components
+  description: Infrastructure Components
   sourceRepos:
     - '*'
   destinations:
@@ -18,14 +18,14 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: workloads
+  name: applications
   namespace: argocd
 spec:
-  description: Application workloads
+  description: Application Components
   sourceRepos:
     - '*'
   destinations:
-    - namespace: '*'
+    - namespace: 'app-*'
       server: https://kubernetes.default.svc
   namespaceResourceWhitelist:
     - group: '*'
@@ -34,10 +34,26 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: applications
+  name: workloads
   namespace: argocd
 spec:
-  description: Business applications
+  description: Workload Components
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: 'workload-*'
+      server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: environments
+  namespace: argocd
+spec:
+  description: Environment-specific configurations
   sourceRepos:
     - '*'
   destinations:

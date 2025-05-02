@@ -1,0 +1,9 @@
+# deployments/bootstrap/argocd/environments/staging/argocd-server-service-patch.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 103.110.174.28  # MetalLB IP for argocd.pnats.cloud

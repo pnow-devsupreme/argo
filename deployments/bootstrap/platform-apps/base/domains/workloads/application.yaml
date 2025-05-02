@@ -2,16 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-workloads
+  name: workloads-root
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # !TODO: uncomment finalizers in production
+  # finalizers:
+    # - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:
     - repoURL: https://github.com/pnow-devsupreme/argo.git
       targetRevision: main
-      path: deployments/domains/workloads/apps/gpu-operator/environments/staging
+      path: deployments/domains/workloads/platform/base
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

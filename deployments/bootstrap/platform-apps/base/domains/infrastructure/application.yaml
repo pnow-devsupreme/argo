@@ -2,14 +2,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-infrastructure
+  name: infrastructure-root
   namespace: argocd
+  annotations:
+    # Needs to be deployed only if argocd-self is deployed and is healthy
+    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    # Dependency on argocd-self being healthy
+    dependencies.argocd.io/argocd-self: "true"
 spec:
-  project: default
+  project: infrastructure
   sources:
     - repoURL: https://github.com/pnow-devsupreme/argo.git
       targetRevision: HEAD
-      path: deployments/domains/infrastructure/platform/environments/staging
+      path: deployments/domains/infrastructure/platform/base
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

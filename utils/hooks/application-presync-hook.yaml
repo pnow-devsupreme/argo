@@ -1,0 +1,28 @@
+# utils/hooks/application-presync-hook.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: check-argocd-access-infra-domain
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/sync-wave: "-1"  # Run before the application itself
+spec:
+  template:
+    spec:
+      containers:
+      - name: check-argocd
+        image: curlimages/curl:latest
+        command:
+        - sh
+        - -c
+        - |
+          echo "Checking if ArgoCD is accessible via argocd.pnats.cloud..."
+          until curl -k https://argocd.pnats.cloud/api/v1/applications -f; do
+            echo "ArgoCD not yet accessible, waiting..."
+            sleep 10
+          done
+          echo "ArgoCD is accessible! Proceeding with infrastructure domain deployment."
+      restartPolicy: Never
+  backoffLimit: 10

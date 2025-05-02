@@ -1,4 +1,10 @@
+# deployments/bootstrap/argocd/environments/staging/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 resources:
   - ../../base
+
+patchesStrategicMerge:
+  - argocd-cm-patch.yaml
+  - argocd-server-service-patch.yaml

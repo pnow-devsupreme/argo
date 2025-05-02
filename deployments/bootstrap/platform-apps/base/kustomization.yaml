@@ -1,5 +1,8 @@
-# File: deployments/bootstrap/platform-apps/base/kustomization.yaml
+# deployments/bootstrap/platform-apps/base/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+metadata:
+  name: global-base-platform-kustomize
 resources:
   - main-root.yaml
+  - ROOT_ARGO/

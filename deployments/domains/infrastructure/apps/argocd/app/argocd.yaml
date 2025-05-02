@@ -2,16 +2,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-configuration
+  name: argocd-config
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
+    # !TODO: after testing, enable the finalizers for prod
+  # finalizers:
+    # - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: infrastructure
   source:
     repoURL: https://github.com/pnow-devsupreme/argo.git
     targetRevision: HEAD
-    path: deployments/domains/infrastructure/apps/argocd-config/environments/staging
+    path: deployments/domains/infrastructure/apps/argocd/base
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

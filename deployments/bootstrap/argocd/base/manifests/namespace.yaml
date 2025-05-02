@@ -1,5 +1,7 @@
-# File: deployments/bootstrap/argocd/base/manifests/namespace.yaml
+# deployments/bootstrap/argocd/base/manifests/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   name: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd

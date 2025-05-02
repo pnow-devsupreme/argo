@@ -1,45 +1,10 @@
+# deployments/bootstrap/argocd/base/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: argocd
+
 resources:
-  - manifests/install.yaml
   - manifests/namespace.yaml
-patches:
-  - patch: |
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: argocd-cm
-        namespace: argocd
-      data:
-        application.resourceTrackingMethod: annotation+label
-    target:
-      kind: ConfigMap
-      name: argocd-cm
-  - patch: |
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: argocd-server
-        namespace: argocd
-      spec:
-        ports:
-        - name: https
-          port: 443
-          targetPort: 8080
-    target:
-      kind: Service
-      name: argocd-server
-  # Patch for RBAC rules
-  - patch: |
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRole
-      metadata:
-        name: argocd-application-controller
-      rules:
-      - apiGroups: ["*"]
-        resources: ["*"]
-        verbs: ["*"]
-    target:
-      kind: ClusterRole
-      name: argocd-application-controller
+  - manifests/install.yaml
+  - manifests/projects.yaml
+  #!TODO: The root-app.yaml will be applied manually after configuring repo access
+  # - manifests/root-app.yaml

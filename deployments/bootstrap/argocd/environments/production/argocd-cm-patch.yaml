@@ -1,0 +1,9 @@
+# deployments/bootstrap/argocd/environments/production/argocd-cm-patch.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  url: https://argocd.pnats.cloud  # You might want a different domain for production
+  statusbadge.enabled: "true"

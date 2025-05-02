@@ -1,0 +1,18 @@
+# deployments/domains/infrastructure/apps/argocd/base/internet-access-check.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  resource.customizations.health.networking.k8s.io_Ingress: |
+    hs = {}
+    ingress = obj.status.loadBalancer and obj.status.loadBalancer.ingress or {}
+    if table.getn(ingress) > 0 then
+      hs.status = "Healthy"
+      hs.message = "Ingress has IP/hostname assigned"
+      return hs
+    end
+    hs.status = "Progressing"
+    hs.message = "Waiting for Ingress to be assigned an IP/hostname"
+    return hs
