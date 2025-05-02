@@ -3,7 +3,16 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - manifests/namespace.yaml
-  - manifests/install.yaml
+  - manifests/install
   - manifests/projects.yaml
   #!TODO: The root-app.yaml will be applied manually after configuring repo access
   # - manifests/root-app.yaml
+patches:
+  - target:
+      kind: ConfigMap
+      name: argocd-cm
+    path: argocd-cm-patch.yaml
+  - target:
+      kind: Service
+      name: argocd-server
+    path: argocd-server-service-patch.yaml
