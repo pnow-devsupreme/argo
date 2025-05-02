@@ -275,8 +275,10 @@ log "SUCCESS" "All nodes are in Ready state."
 # Check for microk8s specific addons
 log "TEST" "Checking for required Microk8s addons..."
 REQUIRED_ADDONS=("dns" "metallb" "storage")
+MICROK8S_STATUS=$(microk8s status)
 for addon in "${REQUIRED_ADDONS[@]}"; do
-    if ! microk8s status | grep "$addon: enabled" > /dev/null 2>&1; then
+    # Updated grep pattern to match the indented format with the addon name at beginning of line
+    if ! echo "$MICROK8S_STATUS" | grep -E '^\s+'"$addon"'\s+' > /dev/null 2>&1; then
         log "ERROR" "Microk8s addon '$addon' is not enabled! Enable it with: microk8s enable $addon"
         exit 1
     else
