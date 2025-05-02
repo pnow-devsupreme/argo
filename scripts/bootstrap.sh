@@ -454,7 +454,7 @@ fi
 log "TEST" "Verifying content of critical files..."
 
 # Check ArgoCD installation file
-if ! grep -q "kind: Kustomization" "$TEMP_DIR/deployments/bootstrap/argocd/base/manifests/install.yaml"; then
+if ! grep -q "kind: Kustomization" "$TEMP_DIR/deployments/bootstrap/argocd/base/manifests/install/kustomization.yaml"; then
     log "ERROR" "Invalid install.yaml file: Expected Kustomization resource"
     exit 1
 fi
