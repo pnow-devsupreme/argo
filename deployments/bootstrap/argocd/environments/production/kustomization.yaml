@@ -4,5 +4,11 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
-  - path: argocd-cm-patch.yaml
-  - path: argocd-server-service-patch.yaml
+  - target:
+      kind: ConfigMap
+      name: argocd-cm
+    path: argocd-cm-patch.yaml
+  - target:
+      kind: Service
+      name: argocd-server
+    path: argocd-server-service-patch.yaml
