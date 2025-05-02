@@ -4,5 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
-  - argocd-cm-patch.yaml
-  - argocd-server-service-patch.yaml
+  - patch:
+      - argocd-cm-patch.yaml
+  - patch:
+      - argocd-server-service-patch.yaml
