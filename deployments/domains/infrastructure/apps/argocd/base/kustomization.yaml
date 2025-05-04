@@ -7,3 +7,15 @@ resources:
   - ingress.yaml
   - clusterissuer.yaml
   - certificate.yaml
+patches:
+- path: argocd-cmd-params-cm-patch.yaml
+  target:
+    kind: ConfigMap
+    name: argocd-cmd-params-cm
+    namespace: argocd
+
+- path: argocd-server-deployment-patch.yaml
+  target:
+    kind: Deployment
+    name: argocd-server
+    namespace: argocd
