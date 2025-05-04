@@ -8,13 +8,13 @@ resources:
   - clusterissuer.yaml
   - certificate.yaml
 patches:
-- path: argocd-cmd-params-cm-patch.yaml
+- path: patches/argocd-cmd-params-cm-patch.yaml
   target:
     kind: ConfigMap
     name: argocd-cmd-params-cm
     namespace: argocd
 
-- path: argocd-server-deployment-patch.yaml
+- path: patches/argocd-server-deployment-patch.yaml
   target:
     kind: Deployment
     name: argocd-server
