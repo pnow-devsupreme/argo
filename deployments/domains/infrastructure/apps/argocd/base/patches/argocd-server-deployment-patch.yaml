@@ -9,8 +9,8 @@ spec:
       containers:
       - name: argocd-server
         volumeMounts:
-        - name: tls-certs
-          mountPath: /app/config/tls
+        - mountPath: /app/config/tls
+          name: tls-certs
       volumes:
       - name: tls-certs
         secret:

@@ -1,4 +1,4 @@
-# deployments/domains/infrastructure/apps/argocd/base/certificate.yaml
+# certificate.yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
