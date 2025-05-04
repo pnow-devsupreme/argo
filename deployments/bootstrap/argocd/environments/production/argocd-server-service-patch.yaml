@@ -6,4 +6,4 @@ metadata:
   namespace: argocd
 spec:
   type: LoadBalancer
-  loadBalancerIP: 103.110.174.28  # MetalLB IP for argocd.pnats.cloud
+  # loadBalancerIP: 103.110.174.28  # MetalLB IP for argocd.pnats.cloud
